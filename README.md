@@ -15,11 +15,12 @@ npm install -g backslide
 ### Usage
 
 ```
-Usage: bs [serve|export] [options]
+Usage: bs [init|serve|export] [options]
 
 Commands:
+  i, init            Initialize new slideshow in current dir
   e, export [files]  Export markdown files to html slideshows [default: *.md]
     -o, --output     Output directory                         [default: dist]
-  s, serve [dir]     Start dev server for specified directory [default: .]
+  s, serve [dir]     Start dev server for specified dir       [default: .]
     -p, --port       Port number to listen on                 [default: 4100]
 ```

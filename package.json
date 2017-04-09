@@ -1,0 +1,44 @@
+{
+  "name": "backslide",
+  "version": "1.0.0",
+  "description": "CLI tool for making HTML presentations using Remark.js",
+  "repository": "sinedied/backslide",
+  "keywords": [
+    "cli",
+    "markdown",
+    "slideshow",
+    "presentation",
+    "remark",
+    "remark.js",
+    "server",
+    "utility"
+  ],
+  "main": "backslide.js",
+  "bin": {
+    "bs": "./bin/bs"
+  },
+  "scripts": {
+    "start": "node ./bin/bs test",
+    "clean": "rm -rf .tmp dist",
+    "test": "eslint *.js",
+    "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
+  },
+  "author": "Yohan Lasorsa",
+  "license": "MIT",
+  "dependencies": {
+    "browser-sync": "^2.18.8",
+    "fs-promise": "^2.0.2",
+    "glob": "^7.1.1",
+    "inliner": "^1.11.0",
+    "minimist": "^1.2.0",
+    "mustache": "^2.3.0",
+    "node-sass": "^4.5.2",
+    "progress": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0"
+  },
+  "engines": {
+    "node": ">=5.0.0"
+  }
+}
