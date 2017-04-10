@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  {{{style}}}
+  <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>  
+  <script>
+    function create() {
+      return remark.create({
+        {{{source}}},
+        ratio: '16:9',
+        highlightLines: true,
+        countIncrementalSlides: false,
+        highlightStyle: 'github'
+      });
+    }
+  </script>
+</head>
+<body onload="slideshow = create()">
+</body>
+</html>
