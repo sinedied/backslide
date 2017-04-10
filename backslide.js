@@ -17,19 +17,27 @@ const isWindows = /^win/.test(process.platform);
 
 const help =
 `${pkg.name} ${pkg.version}
-Usage: bs [init|serve|export] [options]
+Usage: bs [init|serve|export|pdf] [options]
 
 Commands:
-  i, init            Initialize new slideshow in current dir
+  i, init            Init new slideshow in current directory
   e, export [files]  Export markdown files to html slideshows [default: *.md]
     -o, --output     Output directory                         [default: dist]
   s, serve [dir]     Start dev server for specified directory [default: .]
     -p, --port       Port number to listen on                 [default: 4100]
+  p, pdf [files]     Export markdown files to pdf             [default: *.md]
+    -o, --output     Output directory                         [default: pdf]
+    -d, --decktape   Decktape installation dir                [default: .]
+    --verbose        Show Decktape console output
+
+ For pdf export to work, Decktape must be installed.
+ See https://github.com/astefanutti/decktape for details.
 `;
 
 class BackslideCli {
 
   constructor(args) {
+    this._stderrWrite = process.stderr.write;
     this._pwd = process.cwd();
     this._args = args;
     if (args != null) {
@@ -37,7 +45,60 @@ class BackslideCli {
     }
   }
 
+  init() {
+    if (fs.existsSync(path(TemplateDir, 'index.html')) || fs.existsSync(path.join(TemplateDir, 'style.scss'))) {
+      this._exit('"template" already in current directory');
+    }
+    try {
+      fs.copySync(path.join(__dirname, '..', TemplateDir), '.')
+      // TODO: create dummy markdown file
+      console.info('Slideshow initialized successfully');
+    } catch (err) {
+      this._exit(err);
+    }
+  }
+
+  /**
+   * Exports markdown files as pdf using an existing Decktape install.
+   * @param {string} output The ouput dir.
+   * @param {string[]} files The markdown files.
+   * @return Promise<string[]> The exported files.
+   */
+  pdf(output, decktape, files, verbose) {
+    files = files || glob.sync('*.md');
+    this._checkFiles(files);
+
+    // TODO: Check decktape install && files
+
+    fs.mkdirpSync(output);
+
+    let count = 0;
+    const exportedFiles = [];
+    const progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
+    return this.export(path.join(TempDir, 'pdf'), files)
+      .then((exportedFiles) => {
+        exportedFiles.forEach(file => {
+          progress.render({ count: ++count });
+          const exportedFile = path.basename(file, path.extname(file)) + '.pdf';
+          exportedFiles.push(exportedFile);
+          child.execSync([
+              path.join(decktape, 'phantomjs'),
+              path.join(decktape, 'decktape.js'),
+              file,
+              path.join(output, exportedFile)
+            ].join(' '), {
+              stdio: verbose ? [1, 2] : [2]
+            }
+          );
+          progress.tick({ count: count });
+        });
+      })
+      .then(() => exportedFiles);
+  }
+
   serve(dir, port) {
+    // TODO: check template folder existence
+
     dir = dir || '.';
     fs.removeSync(TempDir);
     // TODO: use node-sass programmatically
@@ -60,9 +121,7 @@ class BackslideCli {
       pattern = pattern.replace(/\\/g, '/');
     }
     const files = glob.sync(pattern);
-    if (files.length === 0) {
-      this._exit('No markdown files found.');
-    }
+    this._checkFiles(files);
 
     let count = 0;
     const promise = Promise.resolve();
@@ -105,30 +164,43 @@ class BackslideCli {
       }))
       .then(html => {
         const filename = path.basename(file, path.extname(file)) + '.html';
-        return fs.writeFile(path.join(TempDir, filename), html);
+        return fs.outputFile(path.join(TempDir, filename), html);
       });
   }
 
+  /**
+   * Exports markdown files as html slideshows.
+   * @param {string} output The ouput dir.
+   * @param {string[]} files The markdown files.
+   * @return Promise<string[]> The exported files.
+   */
   export(output, files) {
+    // TODO: check template folder existence
     files = files || glob.sync('*.md');
-    fs.mkdirpSync(output);
+    this._checkFiles(files);
 
     let count = 0;
-    const progress = new Progress(':percent exporting file :current/:total', { total: files.length });
+    const exportedFiles = [];
+    const progress = new Progress(':percent exporting file :count/:total', { total: files.length });
     const promise = Promise.resolve();
     const nextFile = () => promise.then(() => {
       if (count < files.length) {
         const file = files[count++];
+        progress.render({ count: count });        
         return this._exportFile(output, file)
-          .then(() => progress.tick())
+          .then(exportedFile => exportedFiles.push(exportedFile))
+          .then(() => progress.tick({ count: count }))
           .then(nextFile);
       }
     });
-    return nextFile();
+    return nextFile()
+      .then(() => exportedFiles);
   }
 
   _exportFile(dir, file) {
     let html, md;
+    const filename = path.basename(file, path.extname(file)) + '.html';
+    const exportedFile = path.join(dir, filename);
     return Promise.all([
         fs.readFile(file),
         fs.readFile(path.join(TemplateDir, 'index.html')),
@@ -143,12 +215,16 @@ class BackslideCli {
         source: `source: ${md}`,
         style: `<style>\n${css}\n</style>`
       }))
-      .then(html => this._inline('.tmp', html))    
+      .then(html => {
+        this._suppressErrorOutput();
+        this._inline(TemplateDir, html)
+      })
       .then(html => {
         process.chdir(this._pwd);
-        const filename = path.basename(file, path.extname(file)) + '.html';
-        return fs.writeFile(path.join(dir, filename), html);
-      });
+        return fs.outputFile(exportedFile, html);
+      })
+      .then(() => this._restoreErrorOutput())
+      .then(() => exportedFile);
   }
 
   _inline(basedir, html) {
@@ -157,10 +233,10 @@ class BackslideCli {
       new Inliner({
         source: html,
         inlinemin: true,
-        compressCSS: false,
-        compressJS: false,
+        // Must be disabled because it's buggy, see https://github.com/remy/inliner/issues/63
         collapseWhitespace: false,
-        preserveComments: true
+        // compressCSS: false,
+        // compressJS: false,
       },
       (err, html) => err ? reject(err) : resolve(html));
     });
@@ -173,6 +249,32 @@ class BackslideCli {
         includePaths: [TemplateDir]
       },
       (err, result) => err ? reject(err) : resolve(result.css));
+    });
+  }
+
+  _checkFiles(files) {
+    if (files.length === 0) {
+      this._exit('No markdown files found');
+    }
+  }
+
+  _suppressErrorOutput() {
+    process.stderr.write = (data, encoding, callback) => {
+      if (callback) {
+        callback();
+      }
+      return true;
+    };
+  }
+
+  _restoreErrorOutput() {
+    return new Promise((resolve) => {
+      process.stderr.once('drain', () => {
+        process.stderr.write = this._stderrWrite;
+        resolve();
+      });
+      // Drain before restoring output
+      process.stderr.emit('drain');
     });
   }
 
@@ -190,14 +292,16 @@ class BackslideCli {
     switch (_[0]) {
       case 'i':
       case 'init':
-        // TODO
-        break;
+        return this.init();
       case 's':
       case 'serve':
-        return this.serve(_[1], this._args.port);
+        return this.serve(_[1], this._args.port || 4100);
       case 'e':
       case 'export':
-        return this.export(this._args.output, _.slice(1));
+        return this.export(this._args.output || 'dist', _.slice(1));
+      case 'p':
+      case 'pdf':
+        return this.pdf(this._args.output || 'pdf', this._args.decktape || '.', _.slice(1), this._args.verbose);
       default:
         this._help();
     }
@@ -206,15 +310,13 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  string: ['output'],
+  boolean: ['verbose'],
+  string: ['output', 'decktape'],
   number: ['port'],
   alias: {
     o: 'output',
-    p: 'port'
-  },
-  default: {
-    o: './dist',
-    p: 4100
+    p: 'port',
+    d: 'decktape'
   }
 }));
 
