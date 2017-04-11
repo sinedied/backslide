@@ -1,4 +1,5 @@
 .tmp/
+test/
 dist/
 node_modules/
 .idea/
