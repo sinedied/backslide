@@ -12,7 +12,11 @@ const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
 
 const TempDir = '.tmp';
-const TemplateDir = './template';
+const TemplateDir = 'template';
+const HtmlTemplate = 'index.html';
+const SassTemplate = 'style.scss';
+const RemarkScript = 'remark.min.js';
+const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -20,14 +24,16 @@ const help =
 Usage: bs [init|serve|export|pdf] [options]
 
 Commands:
-  i, init            Init new slideshow in current directory
-  e, export [files]  Export markdown files to html slideshows [default: *.md]
+  i, init            Init new presentation in current directory
+    --force          Overwrite existing files
+  e, export [files]  Export markdown files to html slides     [default: *.md]
     -o, --output     Output directory                         [default: dist]
   s, serve [dir]     Start dev server for specified directory [default: .]
     -p, --port       Port number to listen on                 [default: 4100]
   p, pdf [files]     Export markdown files to pdf             [default: *.md]
     -o, --output     Output directory                         [default: pdf]
     -d, --decktape   Decktape installation dir                [default: .]
+    -w, --wait       Wait time between slides in ms           [default: 1000]
     --verbose        Show Decktape console output
 
  For pdf export to work, Decktape must be installed.
@@ -45,37 +51,46 @@ class BackslideCli {
     }
   }
 
-  init() {
-    if (fs.existsSync(path(TemplateDir, 'index.html')) || fs.existsSync(path.join(TemplateDir, 'style.scss'))) {
-      this._exit('"template" already in current directory');
+  /**
+   * Creates the template directory with a presentation starter in the current directory.
+   */
+  init(force) {
+    if (!force && fs.existsSync(path.join(TemplateDir))) {
+      this._exit(`Template directory already exists`);
     }
     try {
-      fs.copySync(path.join(__dirname, '..', TemplateDir), '.')
-      // TODO: create dummy markdown file
-      console.info('Slideshow initialized successfully');
+      fs.copySync(path.join(__dirname, TemplateDir, HtmlTemplate), path.join(TemplateDir, HtmlTemplate));
+      fs.copySync(path.join(__dirname, TemplateDir, SassTemplate), path.join(TemplateDir, SassTemplate));
+      fs.copySync(path.join(__dirname, TemplateDir, RemarkScript), path.join(TemplateDir, RemarkScript));
+      fs.copySync(path.join(__dirname, TemplateDir, 'presentation.md'), './presentation.md');
+      console.info('Presentation initialized successfully');
     } catch (err) {
-      this._exit(err);
+      this._exit(err && err.message || err);
     }
   }
 
   /**
    * Exports markdown files as pdf using an existing Decktape install.
    * @param {string} output The ouput dir.
+   * @param {string} decktape The path to the decktape directory.
    * @param {string[]} files The markdown files.
+   * @param {number} wait Wait time between slides in ms.
+   * @param {boolean} verbose Show decktape console output.
    * @return Promise<string[]> The exported files.
    */
-  pdf(output, decktape, files, verbose) {
-    files = files || glob.sync('*.md');
-    this._checkFiles(files);
-
-    // TODO: Check decktape install && files
-
-    fs.mkdirpSync(output);
-
+  pdf(output, decktape, files, wait, verbose) {
     let count = 0;
+    let progress;
     const exportedFiles = [];
-    const progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
-    return this.export(path.join(TempDir, 'pdf'), files)
+    return Promise.resolve()
+      .then(() => {
+        files = this._getFiles(files);
+        this._checkDecktape(decktape);
+        this._checkTemplate();
+        fs.mkdirpSync(output);
+        progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
+      })
+      .then(() => this.export(path.join(TempDir, 'pdf'), files))
       .then((exportedFiles) => {
         exportedFiles.forEach(file => {
           progress.render({ count: ++count });
@@ -84,6 +99,7 @@ class BackslideCli {
           child.execSync([
               path.join(decktape, 'phantomjs'),
               path.join(decktape, 'decktape.js'),
+              `-p ${wait}`,
               file,
               path.join(output, exportedFile)
             ].join(' '), {
@@ -93,36 +109,18 @@ class BackslideCli {
           progress.tick({ count: count });
         });
       })
-      .then(() => exportedFiles);
+      .then(() => exportedFiles)
+      .catch(err => this._exit(`\nAn error occurred during pdf conversion: ${err && err.message || err}`));
   }
 
+  /**
+   * Starts a development server with live reload.
+   * @param {string} dir The directory containing markdown files.
+   * @param {number} port The ort number to listen on.
+   */
   serve(dir, port) {
-    // TODO: check template folder existence
-
     dir = dir || '.';
-    fs.removeSync(TempDir);
-    // TODO: use node-sass programmatically
-    // Compile scss once first as there's an issue with watch
-    child.execSync(`node ./node_modules/.bin/node-sass ${path.join(TemplateDir, 'style.scss')} -o ${TempDir}`);
-    // Run node-sass in watch mode
-    const scssWatch = child.spawn('node', [
-      './node_modules/.bin/node-sass',
-      '-w',
-      path.join(TemplateDir, 'style.scss'),
-      '-o',
-      TempDir
-    ]);
-    scssWatch.stdout.pipe(process.stdout);
-    scssWatch.stderr.pipe(process.stderr);
-
-    let pattern = path.join(dir, '*.md');
-    if (isWindows) {
-      // glob only works with forward slashes
-      pattern = pattern.replace(/\\/g, '/');
-    }
-    const files = glob.sync(pattern);
-    this._checkFiles(files);
-
+    let files;
     let count = 0;
     const promise = Promise.resolve();
     const nextFile = () => promise.then(() => {
@@ -132,8 +130,68 @@ class BackslideCli {
           .then(nextFile);
       }
     });
-    return nextFile()
-      .then(() => this._startServer(dir, port));
+    return Promise.resolve()
+      .then(() => {
+        fs.removeSync(TempDir);
+        this._checkTemplate();
+        if (!this._isDirectory(dir)) {
+          this._exit(`${dir} is not a directory`);
+        }
+        files = this._getFiles(dir);
+      })
+      .then(() => this._sass())
+      .then(css => {
+        const cssFile = path.basename(SassTemplate, path.extname(SassTemplate)) + '.css';
+        return fs.outputFile(path.join(TempDir, cssFile), css);
+      })
+      .then(() => {
+        // Run node-sass in watch mode (no API >_<)
+        child.exec([
+            path.join(__dirname, 'node_modules/.bin/node-sass'),
+            '-w',
+            path.join(TemplateDir, SassTemplate),
+            '-o',
+            TempDir
+          ].join(' '), {
+            stdio: 'pipe'
+          }
+        );
+      })
+      .then(() => nextFile())
+      .then(() => this._startServer(dir, port))
+      .catch(err => this._exit(`\nCannot start server: ${err && err.message || err}`));
+  }
+
+  /**
+   * Exports markdown files as html slides.
+   * @param {string} output The ouput dir.
+   * @param {string[]} files The markdown files.
+   * @return Promise<string[]> The exported files.
+   */
+  export(output, files) {
+    let count = 0;
+    let progress;
+    const exportedFiles = [];
+    const promise = Promise.resolve();
+    const nextFile = () => promise.then(() => {
+      if (count < files.length) {
+        const file = files[count++];
+        progress.render({ count: count });        
+        return this._exportFile(output, file)
+          .then(exportedFile => exportedFiles.push(exportedFile))
+          .then(() => progress.tick({ count: count }))
+          .then(nextFile);
+      }
+    });
+    return Promise.resolve()
+      .then(() => {
+        files = this._getFiles(files);
+        this._checkTemplate();
+        progress = new Progress(':percent exporting file :count/:total', { total: files.length });
+      })
+      .then(() => nextFile())
+      .then(() => exportedFiles)
+      .catch(err => this._exit(`\nAn error occurred during html export: ${err && err.message || err}`));
   }
 
   _startServer(dir, port) {
@@ -157,7 +215,7 @@ class BackslideCli {
   }
 
   _serveFile(dir, file) {
-    return fs.readFile(path.join(TemplateDir, 'index.html'))
+    return fs.readFile(path.join(TemplateDir, HtmlTemplate))
       .then(buffer => Mustache.render(buffer.toString(), {
         source: `sourceUrl: '${path.basename(file)}'`,
         style: `<link rel="stylesheet" href="style.css">`
@@ -168,63 +226,35 @@ class BackslideCli {
       });
   }
 
-  /**
-   * Exports markdown files as html slideshows.
-   * @param {string} output The ouput dir.
-   * @param {string[]} files The markdown files.
-   * @return Promise<string[]> The exported files.
-   */
-  export(output, files) {
-    // TODO: check template folder existence
-    files = files || glob.sync('*.md');
-    this._checkFiles(files);
-
-    let count = 0;
-    const exportedFiles = [];
-    const progress = new Progress(':percent exporting file :count/:total', { total: files.length });
-    const promise = Promise.resolve();
-    const nextFile = () => promise.then(() => {
-      if (count < files.length) {
-        const file = files[count++];
-        progress.render({ count: count });        
-        return this._exportFile(output, file)
-          .then(exportedFile => exportedFiles.push(exportedFile))
-          .then(() => progress.tick({ count: count }))
-          .then(nextFile);
-      }
-    });
-    return nextFile()
-      .then(() => exportedFiles);
-  }
-
   _exportFile(dir, file) {
     let html, md;
     const filename = path.basename(file, path.extname(file)) + '.html';
     const exportedFile = path.join(dir, filename);
     return Promise.all([
         fs.readFile(file),
-        fs.readFile(path.join(TemplateDir, 'index.html')),
-        fs.readFile(path.join(TemplateDir, 'style.scss'))
+        fs.readFile(path.join(TemplateDir, HtmlTemplate)),
+        this._sass()
       ])
-      .then(buffers => {
-        md = JSON.stringify(buffers[0].toString());
-        html = buffers[1].toString();
-        return this._scss(TemplateDir, buffers[2].toString());
+      .then(results => {
+        md = results[0].toString();
+        html = results[1].toString();
+        return results[2];
       })
       .then(css => Mustache.render(html, {
-        source: `source: ${md}`,
-        style: `<style>\n${css}\n</style>`
+        source: `source: ${JSON.stringify(md)}`,
+        style: `<style>\n${css}\n</style>`,
+        title: this._getTitle(md) || path.basename(file, path.extname(file))
       }))
       .then(html => {
         this._suppressErrorOutput();
-        this._inline(TemplateDir, html)
+        return this._inline(TemplateDir, html)
       })
       .then(html => {
         process.chdir(this._pwd);
         return fs.outputFile(exportedFile, html);
       })
       .then(() => this._restoreErrorOutput())
-      .then(() => exportedFile);
+      .then(() => exportedFile)
   }
 
   _inline(basedir, html) {
@@ -234,27 +264,66 @@ class BackslideCli {
         source: html,
         inlinemin: true,
         // Must be disabled because it's buggy, see https://github.com/remy/inliner/issues/63
-        collapseWhitespace: false,
-        // compressCSS: false,
-        // compressJS: false,
+        collapseWhitespace: false
       },
       (err, html) => err ? reject(err) : resolve(html));
     });
   }
 
-  _scss(basedir, scss) {
+  _sass() {
     return new Promise((resolve, reject) => {
       sass.render({
-        data: scss,
+        file: path.join(TemplateDir, SassTemplate),
         includePaths: [TemplateDir]
       },
       (err, result) => err ? reject(err) : resolve(result.css));
     });
   }
 
-  _checkFiles(files) {
+  _checkDecktape(dir) {
+    if (!fs.existsSync(path.join(dir, 'phantomjs')) || !fs.existsSync(path.join(dir, 'decktape.js'))) {
+      throw new Error('Decktape not found');
+    }
+  }
+
+  _checkTemplate() {
+    if (!fs.existsSync(path.join(TemplateDir, HtmlTemplate))) {
+      throw new Error(`${path.join(TemplateDir, HtmlTemplate)} not found`);
+    }
+    if (!fs.existsSync(path.join(TemplateDir, SassTemplate))) {
+      throw new Error(`${path.join(TemplateDir, SassTemplate)} not found`);
+    }
+  }
+
+  _getFiles(files) {
+    if (!files.length || (files.length === 1 && this._isDirectory(files[0]))) {
+      const pattern = this._normalizePattern(files[0] ? files[0] : '');
+      try {
+        files = glob.sync(path.join(pattern, '*.md'));
+      } catch(err) {
+        this._exit(err && err.message || err);
+      }
+    }
     if (files.length === 0) {
       this._exit('No markdown files found');
+    }
+    return files;
+  }
+
+  _normalizePattern(pattern) {
+    if (isWindows) {
+      // glob only works with forward slashes
+      return pattern.replace(/\\/g, '/');
+    }
+    return pattern;
+  }
+
+  _isDirectory(path) {
+    try {
+      const stat = fs.statSync(path);
+      return stat.isDirectory();
+    } catch (err) {
+      return false;
     }
   }
 
@@ -278,6 +347,11 @@ class BackslideCli {
     });
   }
 
+  _getTitle(md) {
+    const match = TitleRegExp.exec(md);
+    return match ? match[1]: null;
+  }
+
   _help() {
     this._exit(help);
   }
@@ -292,7 +366,7 @@ class BackslideCli {
     switch (_[0]) {
       case 'i':
       case 'init':
-        return this.init();
+        return this.init(this._args.force);
       case 's':
       case 'serve':
         return this.serve(_[1], this._args.port || 4100);
@@ -301,7 +375,10 @@ class BackslideCli {
         return this.export(this._args.output || 'dist', _.slice(1));
       case 'p':
       case 'pdf':
-        return this.pdf(this._args.output || 'pdf', this._args.decktape || '.', _.slice(1), this._args.verbose);
+        return this.pdf(this._args.output || 'pdf',
+          this._args.decktape || '.',
+          _.slice(1), this._args.wait || 1000,
+          this._args.verbose);
       default:
         this._help();
     }
@@ -310,13 +387,14 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose'],
+  boolean: ['verbose', 'force'],
   string: ['output', 'decktape'],
-  number: ['port'],
+  number: ['port', 'wait'],
   alias: {
     o: 'output',
     p: 'port',
-    d: 'decktape'
+    d: 'decktape',
+    w: 'wait'
   }
 }));
 
