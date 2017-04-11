@@ -6,13 +6,19 @@
   "keywords": [
     "cli",
     "markdown",
+    "html",
     "slideshow",
     "presentation",
+    "slides",
     "remark",
-    "remark.js",
     "server",
-    "utility"
+    "utility",
+    "pdf",
+    "decktape",
+    "sass"
   ],
+  "author": "Yohan Lasorsa",
+  "license": "MIT",
   "main": "backslide.js",
   "bin": {
     "bs": "./bin/bs"
@@ -23,8 +29,6 @@
     "test": "eslint *.js",
     "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
   },
-  "author": "Yohan Lasorsa",
-  "license": "MIT",
   "dependencies": {
     "browser-sync": "^2.18.8",
     "fs-promise": "^2.0.2",
