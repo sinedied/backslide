@@ -67,7 +67,7 @@ Everything will be inlined in the HTML document (scripts, css, etc) to you don't
 
 If you have set a `title` variable in your document (like this `title: My Awesome Presentation`), it will be used as the HTML document title, otherwise the file name will be used.
 
-#### Converting your slides to PDF
+### Converting your slides to PDF
 
 Use `bs pdf` to export you `.md` as PDF presentations.
 
