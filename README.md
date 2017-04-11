@@ -4,7 +4,7 @@
 ![Node version](https://img.shields.io/node/v/backslide.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> CLI tool for making HTML presentations with [Remark.js](https://github.com/gnab/remark) using [Markdown](http://daringfireball.net/projects/markdown/)
+> CLI tool for making HTML presentations with [Remark.js](https://github.com/gnab/remark) using [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 
 ## Installation
 
@@ -49,7 +49,7 @@ A page will automatically open in your web browser showing all your presentation
 
 Select one to see the preview, you can then edit your `.md` file and see the changes immediately as you save the file. Any style change will also be applied live.
 
-Slides are written in [Markdown](http://daringfireball.net/projects/markdown/), along with some useful **Remark.js** specific additions.
+Slides are written in [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet), along with some useful **Remark.js** specific additions.
 See the [Remark.js wiki](https://github.com/gnab/remark/wiki) for the specific syntax and helpers.
 
 #### Customize style
@@ -63,7 +63,7 @@ The stylesheet is written in [Sass](http://sass-lang.com), but you can use plain
 
 Use `bs export` to export all your `.md` files as HTML presentations.
 
-Everything will be inlined in the HTML document (scripts, css, etc) to you don't need a network to show your presentation. If you have images, it's best to include them as [data-uri]() in your markdown they can be embedded too.
+Everything will be inlined in the HTML document (scripts, css, etc) to you don't need a network to show your presentation. If you have images, it's best to include them as [data-uri](https://css-tricks.com/data-uris/) in your markdown they can be embedded too.
 
 If you have set a `title` variable in your document (like this `title: My Awesome Presentation`), it will be used as the HTML document title, otherwise the file name will be used.
 
