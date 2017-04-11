@@ -205,7 +205,7 @@ class BackslideCli {
         path.join(dir, '*.md')
       ],
       server: {
-        baseDir: [TempDir, dir],
+        baseDir: [TempDir, TemplateDir, dir],
         directory: true
       },
       watchOptions: {
