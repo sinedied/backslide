@@ -8,6 +8,7 @@ $light            : #FFF;
 $dark             : #333;
 $text-dark        : #212121; 
 $text-light       : $light;
+$code-background  : #F8F8F8;
 $overlay          : transparentize(#000, .5);
 $font-size        : 28px;
 $font-size-impact : 128px;
@@ -34,23 +35,18 @@ li { margin-bottom: .25em; };
 pre, code {
   text-align: left;
   font-family: $font-fixed;
+  color: $secondary;
+  background: $code-background;
 }
 a, a:visited, a:hover, a:active { color: $text-dark; }
 img { vertical-align: inherit; }
 blockquote {
-  display: inline-block;
   border-left: 8px solid;
   padding-left: .5em;
   color: $tertiary;
   text-align: left;
+  margin: 1em 0;
   & > p { margin: 0; }
-}
-iframe {
-  height: calc(#{100%/$iframe-scale} - 1.2em);
-  width: 100%/$iframe-scale;
-  transform: scale($iframe-scale);
-  transform-origin: 0 0;
-  border: 0;
 }
 
 
@@ -89,6 +85,13 @@ iframe {
 
 .full {
   &, h1, h2 { color: $text-light; }
+  &iframe {
+    height: calc(#{100%/$iframe-scale} - 1.2em);
+    width: 100%/$iframe-scale;
+    transform: scale($iframe-scale);
+    transform-origin: 0 0;
+    border: 0;
+  }
 }
 
 .bottom-bar {
@@ -121,7 +124,7 @@ iframe {
 .top { vertical-align: top; };
 .bottom { vertical-align: bottom; };
 .inline-block {
-  p, ul, ol {
+  p, ul, ol, blockquote {
     display: inline-block;
     text-align: left;
   }
@@ -169,6 +172,10 @@ iframe {
 
 [class^="col-"] {
   float: left;
+  &.inline-block {
+    float: none;
+    display: inline-block;
+  }
 }
 
 @for $i from 1 through 12 {
