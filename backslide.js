@@ -137,7 +137,8 @@ class BackslideCli {
         if (!this._isDirectory(dir)) {
           this._exit(`${dir} is not a directory`);
         }
-        files = this._getFiles(dir);
+        console.log(dir);
+        files = this._getFiles([dir]);
       })
       .then(() => this._sass())
       .then(css => {
