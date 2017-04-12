@@ -1,6 +1,6 @@
 {
   "name": "backslide",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool for making HTML presentations with Remark.js using Markdown",
   "repository": "sinedied/backslide",
   "keywords": [
@@ -24,9 +24,11 @@
     "bs": "./bin/bs"
   },
   "scripts": {
-    "start": "node ./bin/bs test",
+    "start": "node ./bin/bs server example",
     "clean": "rm -rf .tmp dist",
     "test": "eslint *.js",
+    "export": "node ./bin/bs export example",
+    "deploy": "npm run clean && npm run export && gh-pages -d dist",
     "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
   },
   "dependencies": {
@@ -40,7 +42,8 @@
     "progress": "^2.0.0"
   },
   "devDependencies": {
-    "eslint": "^3.19.0"
+    "eslint": "^3.19.0",
+    "gh-pages": "^0.12.0"
   },
   "engines": {
     "node": ">=6.0.0"
