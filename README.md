@@ -8,6 +8,8 @@
 
 <img width="800" src="https://cloud.githubusercontent.com/assets/593151/24945508/df6e3b50-1f5f-11e7-895c-89e89d89fa5a.jpg"/>
 
+See an example presentation [here](https://sinedied.github.io/backslide)
+
 ## Features
 
 - Template generator
