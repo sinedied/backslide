@@ -44,7 +44,7 @@ class: middle
 
 ### Features
 
-- Template generator
+- Template generator with [Sass](http://sass-lang.com) styling
 - Live preview server
 - Self-contained HTML export
 - Automated PDF conversion

@@ -12,7 +12,7 @@ See an example presentation [here](https://sinedied.github.io/backslide)
 
 ## Features
 
-- Template generator
+- Template generator with [Sass](http://sass-lang.com) styling
 - Live preview server
 - Self-contained HTML export
 - Automated PDF conversion
