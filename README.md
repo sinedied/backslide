@@ -6,6 +6,16 @@
 
 > CLI tool for making HTML presentations with [Remark.js](https://github.com/gnab/remark) using [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 
+<img width="800" src="https://cloud.githubusercontent.com/assets/593151/24945508/df6e3b50-1f5f-11e7-895c-89e89d89fa5a.jpg"/>
+
+## Features
+
+- Template generator
+- Live preview server
+- Self-contained HTML export
+- Automated PDF conversion
+- Multiple presentations support
+
 ## Installation
 
 ```sh
