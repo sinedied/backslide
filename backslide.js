@@ -137,7 +137,6 @@ class BackslideCli {
         if (!this._isDirectory(dir)) {
           this._exit(`${dir} is not a directory`);
         }
-        console.log(dir);
         files = this._getFiles([dir]);
       })
       .then(() => this._sass())
@@ -146,16 +145,17 @@ class BackslideCli {
         return fs.outputFile(path.join(TempDir, cssFile), css);
       })
       .then(() => {
+        // Find node_modules path
+        const sassPath = require.resolve('node-sass');
+        const nodeModulesPath = sassPath.substr(0, sassPath.lastIndexOf('node-sass'));
+        
         // Run node-sass in watch mode (no API >_<)
-        child.exec([
-            path.join(__dirname, 'node_modules/.bin/node-sass'),
+        child.spawn(path.join(nodeModulesPath, '.bin/node-sass'), [
             '-w',
             path.join(TemplateDir, SassTemplate),
             '-o',
             TempDir
-          ].join(' '), {
-            stdio: 'pipe'
-          }
+          ], { stdio: 'inherit' }
         );
       })
       .then(() => nextFile())
