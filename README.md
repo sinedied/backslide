@@ -67,7 +67,7 @@ See the [Remark.js wiki](https://github.com/gnab/remark/wiki) for the specific s
 #### Customize style
 
 Just edit the `template/style.scss` file and make changes according to your needs.
-The base theme aleardy provides some helpful additions.
+The base theme already provides some helpful additions.
 
 The stylesheet is written in [Sass](http://sass-lang.com), but you can use plain CSS instead if you feel like it, as long as you don't change the file extension.
 
@@ -75,7 +75,7 @@ The stylesheet is written in [Sass](http://sass-lang.com), but you can use plain
 
 Use `bs export` to export all your `.md` files as HTML presentations.
 
-Everything will be inlined in the HTML document (scripts, css, etc) to you don't need a network to show your presentation. If you have images, it's best to include them as [data-uri](https://css-tricks.com/data-uris/) in your markdown they can be embedded too.
+Everything will be inlined in the HTML document (scripts, css, etc) so you don't need a network to show your presentation. If you have images, it's best to include them as [data-uri](https://css-tricks.com/data-uris/) in your markdown, so they can be embedded too.
 
 If you have set a `title` variable in your document (like this `title: My Awesome Presentation`), it will be used as the HTML document title, otherwise the file name will be used.
 
