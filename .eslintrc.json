@@ -6,6 +6,9 @@
   },
   "rules": {
     "no-console": "off",
-    "no-case-declarations": "off"
+    "no-case-declarations": "off",
+    "no-var": "error",
+    "prefer-const": "error",
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }]
   }
 }

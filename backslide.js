@@ -148,15 +148,10 @@ class BackslideCli {
         // Find node_modules path
         const sassPath = require.resolve('node-sass');
         const nodeModulesPath = sassPath.substr(0, sassPath.lastIndexOf('node-sass'));
-        
-        let relativePath = '.bin/node-sass'
-        // HACK: breaks on windows unless we specify cmd.
-        if (isWindows) {
-          relativePath += ".cmd"
-        }
+        const sassBin = `.bin/node-sass${isWindows ? '.cmd' : ''}`;
 
         // Run node-sass in watch mode (no API >_<)
-        child.spawn(path.join(nodeModulesPath, relativePath), [
+        child.spawn(path.join(nodeModulesPath, sassBin), [
             '-w',
             path.join(TemplateDir, SassTemplate),
             '-o',
