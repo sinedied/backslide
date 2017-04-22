@@ -30,6 +30,7 @@ Commands:
     -o, --output     Output directory                         [default: dist]
   s, serve [dir]     Start dev server for specified directory [default: .]
     -p, --port       Port number to listen on                 [default: 4100]
+    -s, --skip-open  Do not open browser on start
   p, pdf [files]     Export markdown files to pdf             [default: *.md]
     -o, --output     Output directory                         [default: pdf]
     -d, --decktape   Decktape installation dir                [default: .]
@@ -116,9 +117,10 @@ class BackslideCli {
   /**
    * Starts a development server with live reload.
    * @param {string} dir The directory containing markdown files.
-   * @param {number} port The ort number to listen on.
+   * @param {number} port The port number to listen on.
+   * @param {boolean} open True to open default browser.
    */
-  serve(dir, port) {
+  serve(dir, port, open) {
     dir = dir || '.';
     let files;
     let count = 0;
@@ -160,7 +162,7 @@ class BackslideCli {
         );
       })
       .then(() => nextFile())
-      .then(() => this._startServer(dir, port))
+      .then(() => this._startServer(dir, port, open))
       .catch(err => this._exit(`\nCannot start server: ${err && err.message || err}`));
   }
 
@@ -196,7 +198,7 @@ class BackslideCli {
       .catch(err => this._exit(`\nAn error occurred during html export: ${err && err.message || err}`));
   }
 
-  _startServer(dir, port) {
+  _startServer(dir, port, open) {
     browserSync.init({
       ui: false,
       injectChanges: true,
@@ -212,7 +214,8 @@ class BackslideCli {
       },
       watchOptions: {
         ignored: 'node_modules'
-      }
+      },
+      browser: open ? undefined : []
     });
   }
 
@@ -371,7 +374,7 @@ class BackslideCli {
         return this.init(this._args.force);
       case 's':
       case 'serve':
-        return this.serve(_[1], this._args.port || 4100);
+        return this.serve(_[1], this._args.port || 4100, !this._args['skip-open']);
       case 'e':
       case 'export':
         return this.export(this._args.output || 'dist', _.slice(1));
@@ -389,14 +392,15 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose', 'force'],
+  boolean: ['verbose', 'force', 'skip-open'],
   string: ['output', 'decktape'],
   number: ['port', 'wait'],
   alias: {
     o: 'output',
     p: 'port',
     d: 'decktape',
-    w: 'wait'
+    w: 'wait',
+    s: 'skip-open'
   }
 }));
 
