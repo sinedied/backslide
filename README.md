@@ -31,17 +31,19 @@ npm install -g backslide
 Usage: bs [init|serve|export|pdf] [options]
 
 Commands:
-  i, init            Init new presentation in current directory
-    --force          Overwrite existing files
-  e, export [files]  Export markdown files to html slides     [default: *.md]
-    -o, --output     Output directory                         [default: dist]
-  s, serve [dir]     Start dev server for specified directory [default: .]
-    -p, --port       Port number to listen on                 [default: 4100]
-  p, pdf [files]     Export markdown files to pdf             [default: *.md]
-    -o, --output     Output directory                         [default: pdf]
-    -d, --decktape   Decktape installation dir                [default: .]
-    -w, --wait       Wait time between slides in ms           [default: 1000]
-    --verbose        Show Decktape console output
+  i, init             Init new presentation in current directory
+    --force           Overwrite existing files
+  e, export [files]   Export markdown files to html slides     [default: *.md]
+    -o, --output      Output directory                         [default: dist]
+    -r, --strip-notes Strip presenter notes
+  s, serve [dir]      Start dev server for specified directory [default: .]
+    -p, --port        Port number to listen on                 [default: 4100]
+    -s, --skip-open   Do not open browser on start
+  p, pdf [files]      Export markdown files to pdf             [default: *.md]
+    -o, --output      Output directory                         [default: pdf]
+    -d, --decktape    Decktape installation dir                [default: .]
+    -w, --wait        Wait time between slides in ms           [default: 1000]
+    --verbose         Show Decktape console output
 
  For pdf export to work, Decktape must be installed.
  See https://github.com/astefanutti/decktape for details.
