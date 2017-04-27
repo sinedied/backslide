@@ -2,11 +2,12 @@
 
 [![NPM version](https://img.shields.io/npm/v/backslide.svg)](https://www.npmjs.com/package/backslide)
 ![Node version](https://img.shields.io/node/v/backslide.svg)
+[![Build status](https://img.shields.io/travis/sinedied/backslide/master.svg)](https://travis-ci.org/sinedied/backslide)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > CLI tool for making HTML presentations with [Remark.js](https://github.com/gnab/remark) using [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 
-<img width="800" src="https://cloud.githubusercontent.com/assets/593151/24945508/df6e3b50-1f5f-11e7-895c-89e89d89fa5a.jpg"/>
+![screenshot](https://cloud.githubusercontent.com/assets/593151/24945508/df6e3b50-1f5f-11e7-895c-89e89d89fa5a.jpg)
 
 See an example presentation [here](https://sinedied.github.io/backslide)
 
@@ -30,17 +31,19 @@ npm install -g backslide
 Usage: bs [init|serve|export|pdf] [options]
 
 Commands:
-  i, init            Init new presentation in current directory
-    --force          Overwrite existing files
-  e, export [files]  Export markdown files to html slides     [default: *.md]
-    -o, --output     Output directory                         [default: dist]
-  s, serve [dir]     Start dev server for specified directory [default: .]
-    -p, --port       Port number to listen on                 [default: 4100]
-  p, pdf [files]     Export markdown files to pdf             [default: *.md]
-    -o, --output     Output directory                         [default: pdf]
-    -d, --decktape   Decktape installation dir                [default: .]
-    -w, --wait       Wait time between slides in ms           [default: 1000]
-    --verbose        Show Decktape console output
+  i, init             Init new presentation in current directory
+    --force           Overwrite existing files
+  e, export [files]   Export markdown files to html slides     [default: *.md]
+    -o, --output      Output directory                         [default: dist]
+    -r, --strip-notes Strip presenter notes
+  s, serve [dir]      Start dev server for specified directory [default: .]
+    -p, --port        Port number to listen on                 [default: 4100]
+    -s, --skip-open   Do not open browser on start
+  p, pdf [files]      Export markdown files to pdf             [default: *.md]
+    -o, --output      Output directory                         [default: pdf]
+    -d, --decktape    Decktape installation dir                [default: .]
+    -w, --wait        Wait time between slides in ms           [default: 1000]
+    --verbose         Show Decktape console output
 
  For pdf export to work, Decktape must be installed.
  See https://github.com/astefanutti/decktape for details.

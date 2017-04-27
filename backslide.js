@@ -17,6 +17,7 @@ const HtmlTemplate = 'index.html';
 const SassTemplate = 'style.scss';
 const RemarkScript = 'remark.min.js';
 const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
+const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -24,17 +25,19 @@ const help =
 Usage: bs [init|serve|export|pdf] [options]
 
 Commands:
-  i, init            Init new presentation in current directory
-    --force          Overwrite existing files
-  e, export [files]  Export markdown files to html slides     [default: *.md]
-    -o, --output     Output directory                         [default: dist]
-  s, serve [dir]     Start dev server for specified directory [default: .]
-    -p, --port       Port number to listen on                 [default: 4100]
-  p, pdf [files]     Export markdown files to pdf             [default: *.md]
-    -o, --output     Output directory                         [default: pdf]
-    -d, --decktape   Decktape installation dir                [default: .]
-    -w, --wait       Wait time between slides in ms           [default: 1000]
-    --verbose        Show Decktape console output
+  i, init             Init new presentation in current directory
+    --force           Overwrite existing files
+  e, export [files]   Export markdown files to html slides     [default: *.md]
+    -o, --output      Output directory                         [default: dist]
+    -r, --strip-notes Strip presenter notes
+  s, serve [dir]      Start dev server for specified directory [default: .]
+    -p, --port        Port number to listen on                 [default: 4100]
+    -s, --skip-open   Do not open browser on start
+  p, pdf [files]      Export markdown files to pdf             [default: *.md]
+    -o, --output      Output directory                         [default: pdf]
+    -d, --decktape    Decktape installation dir                [default: .]
+    -w, --wait        Wait time between slides in ms           [default: 1000]
+    --verbose         Show Decktape console output
 
  For pdf export to work, Decktape must be installed.
  See https://github.com/astefanutti/decktape for details.
@@ -116,9 +119,10 @@ class BackslideCli {
   /**
    * Starts a development server with live reload.
    * @param {string} dir The directory containing markdown files.
-   * @param {number} port The ort number to listen on.
+   * @param {number} port The port number to listen on.
+   * @param {boolean} open True to open default browser.
    */
-  serve(dir, port) {
+  serve(dir, port, open) {
     dir = dir || '.';
     let files;
     let count = 0;
@@ -148,9 +152,10 @@ class BackslideCli {
         // Find node_modules path
         const sassPath = require.resolve('node-sass');
         const nodeModulesPath = sassPath.substr(0, sassPath.lastIndexOf('node-sass'));
-        
+        const sassBin = `.bin/node-sass${isWindows ? '.cmd' : ''}`;
+
         // Run node-sass in watch mode (no API >_<)
-        child.spawn(path.join(nodeModulesPath, '.bin/node-sass'), [
+        child.spawn(path.join(nodeModulesPath, sassBin), [
             '-w',
             path.join(TemplateDir, SassTemplate),
             '-o',
@@ -159,7 +164,7 @@ class BackslideCli {
         );
       })
       .then(() => nextFile())
-      .then(() => this._startServer(dir, port))
+      .then(() => this._startServer(dir, port, open))
       .catch(err => this._exit(`\nCannot start server: ${err && err.message || err}`));
   }
 
@@ -167,9 +172,10 @@ class BackslideCli {
    * Exports markdown files as html slides.
    * @param {string} output The ouput dir.
    * @param {string[]} files The markdown files.
+   * @param {boolean} stripNotes True to strip presenter notes.
    * @return Promise<string[]> The exported files.
    */
-  export(output, files) {
+  export(output, files, stripNotes) {
     let count = 0;
     let progress;
     const exportedFiles = [];
@@ -178,7 +184,7 @@ class BackslideCli {
       if (count < files.length) {
         const file = files[count++];
         progress.render({ count: count });        
-        return this._exportFile(output, file)
+        return this._exportFile(output, file, stripNotes)
           .then(exportedFile => exportedFiles.push(exportedFile))
           .then(() => progress.tick({ count: count }))
           .then(nextFile);
@@ -195,7 +201,7 @@ class BackslideCli {
       .catch(err => this._exit(`\nAn error occurred during html export: ${err && err.message || err}`));
   }
 
-  _startServer(dir, port) {
+  _startServer(dir, port, open) {
     browserSync.init({
       ui: false,
       injectChanges: true,
@@ -212,7 +218,8 @@ class BackslideCli {
       },
       watchOptions: {
         ignored: 'node_modules'
-      }
+      },
+      browser: open ? undefined : []
     });
   }
 
@@ -228,7 +235,7 @@ class BackslideCli {
       });
   }
 
-  _exportFile(dir, file) {
+  _exportFile(dir, file, stripNotes) {
     let html, md;
     const filename = path.basename(file, path.extname(file)) + '.html';
     const exportedFile = path.join(dir, filename);
@@ -239,6 +246,9 @@ class BackslideCli {
       ])
       .then(results => {
         md = results[0].toString();
+        if (stripNotes) {
+          md = md.replace(NotesRegExp, '$1');
+        }
         html = results[1].toString();
         return results[2];
       })
@@ -371,10 +381,10 @@ class BackslideCli {
         return this.init(this._args.force);
       case 's':
       case 'serve':
-        return this.serve(_[1], this._args.port || 4100);
+        return this.serve(_[1], this._args.port || 4100, !this._args['skip-open']);
       case 'e':
       case 'export':
-        return this.export(this._args.output || 'dist', _.slice(1));
+        return this.export(this._args.output || 'dist', _.slice(1), this._args['strip-notes']);
       case 'p':
       case 'pdf':
         return this.pdf(this._args.output || 'pdf',
@@ -389,14 +399,16 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose', 'force'],
+  boolean: ['verbose', 'force', 'skip-open', 'strip-notes'],
   string: ['output', 'decktape'],
   number: ['port', 'wait'],
   alias: {
     o: 'output',
     p: 'port',
     d: 'decktape',
-    w: 'wait'
+    w: 'wait',
+    s: 'skip-open',
+    r: 'strip-notes'
   }
 }));
 
