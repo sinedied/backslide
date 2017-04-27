@@ -199,6 +199,7 @@ class BackslideCli {
     browserSync.init({
       ui: false,
       injectChanges: true,
+      notify: false,
       port: port,
       files: [
         path.join(TemplateDir, '*.{html,css,js}'),
