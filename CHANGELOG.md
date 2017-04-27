@@ -1,3 +1,7 @@
+# 1.1.1
+
+- Removed browsersync notification
+
 # 1.1.0
 
 + Added option to skip opening browser on serve
