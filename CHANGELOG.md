@@ -1,3 +1,7 @@
+# 1.2.0
+
++ Added option to disable resources inlining on export
+
 # 1.1.1
 
 - Removed browsersync notification
