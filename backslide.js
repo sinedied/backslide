@@ -30,6 +30,7 @@ Commands:
   e, export [files]   Export markdown files to html slides     [default: *.md]
     -o, --output      Output directory                         [default: dist]
     -r, --strip-notes Strip presenter notes
+    -l, --no-inline   Do not inline external resources
   s, serve [dir]      Start dev server for specified directory [default: .]
     -p, --port        Port number to listen on                 [default: 4100]
     -s, --skip-open   Do not open browser on start
@@ -173,9 +174,10 @@ class BackslideCli {
    * @param {string} output The ouput dir.
    * @param {string[]} files The markdown files.
    * @param {boolean} stripNotes True to strip presenter notes.
+   * @param {boolean} inline True to inline external resources.
    * @return Promise<string[]> The exported files.
    */
-  export(output, files, stripNotes) {
+  export(output, files, stripNotes, inline) {
     let count = 0;
     let progress;
     const exportedFiles = [];
@@ -184,7 +186,7 @@ class BackslideCli {
       if (count < files.length) {
         const file = files[count++];
         progress.render({ count: count });        
-        return this._exportFile(output, file, stripNotes)
+        return this._exportFile(output, file, stripNotes, inline)
           .then(exportedFile => exportedFiles.push(exportedFile))
           .then(() => progress.tick({ count: count }))
           .then(nextFile);
@@ -235,7 +237,7 @@ class BackslideCli {
       });
   }
 
-  _exportFile(dir, file, stripNotes) {
+  _exportFile(dir, file, stripNotes, inline) {
     let html, md;
     const filename = path.basename(file, path.extname(file)) + '.html';
     const exportedFile = path.join(dir, filename);
@@ -259,7 +261,7 @@ class BackslideCli {
       }))
       .then(html => {
         this._suppressErrorOutput();
-        return this._inline(TemplateDir, html)
+        return inline ? this._inline(TemplateDir, html) : html
       })
       .then(html => {
         process.chdir(this._pwd);
@@ -286,7 +288,8 @@ class BackslideCli {
     return new Promise((resolve, reject) => {
       sass.render({
         file: path.join(TemplateDir, SassTemplate),
-        includePaths: [TemplateDir]
+        includePaths: [TemplateDir],
+        outputStyle: 'compressed'
       },
       (err, result) => err ? reject(err) : resolve(result.css));
     });
@@ -384,7 +387,10 @@ class BackslideCli {
         return this.serve(_[1], this._args.port || 4100, !this._args['skip-open']);
       case 'e':
       case 'export':
-        return this.export(this._args.output || 'dist', _.slice(1), this._args['strip-notes']);
+        return this.export(this._args.output || 'dist',
+          _.slice(1),
+          this._args['strip-notes'],
+          !this._args['no-inline']);
       case 'p':
       case 'pdf':
         return this.pdf(this._args.output || 'pdf',
@@ -399,7 +405,7 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose', 'force', 'skip-open', 'strip-notes'],
+  boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'no-inline'],
   string: ['output', 'decktape'],
   number: ['port', 'wait'],
   alias: {
@@ -408,7 +414,8 @@ new BackslideCli(require('minimist')(process.argv.slice(2), {
     d: 'decktape',
     w: 'wait',
     s: 'skip-open',
-    r: 'strip-notes'
+    r: 'strip-notes',
+    l: 'no-inline'
   }
 }));
 
