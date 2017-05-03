@@ -36,6 +36,7 @@ Commands:
   e, export [files]   Export markdown files to html slides     [default: *.md]
     -o, --output      Output directory                         [default: dist]
     -r, --strip-notes Strip presenter notes
+    -l, --no-inline   Do not inline external resources
   s, serve [dir]      Start dev server for specified directory [default: .]
     -p, --port        Port number to listen on                 [default: 4100]
     -s, --skip-open   Do not open browser on start
