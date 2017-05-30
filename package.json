@@ -24,7 +24,7 @@
     "bs": "./bin/bs"
   },
   "scripts": {
-    "start": "node ./bin/bs server example",
+    "start": "node ./bin/bs serve example",
     "clean": "rm -rf .tmp dist",
     "test": "eslint *.js",
     "export": "node ./bin/bs export example",
