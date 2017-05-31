@@ -1,3 +1,8 @@
+# 1.2.1
+
+- Use `fs-extra` instead of deprecated `fs-promise` (PR #6)
+- Fixed typo in serve example (PR #6)
+
 # 1.2.0
 
 + Added option to disable resources inlining on export
