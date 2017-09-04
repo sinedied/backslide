@@ -87,5 +87,5 @@ If you have set a `title` variable in your document (like this `title: My Awesom
 
 Use `bs pdf` to export your all `.md` files as PDF presentations.
 
-For this feature to work, you need to install [Decktape](https://github.com/astefanutti/decktape).
+For this feature to work, you need to install [Decktape@1.0.0](https://github.com/astefanutti/decktape/releases/tag/v1.0.0) **(newer versions do not work for now)**.
 If you have installed it in a different directory than your slides, you must provide your installation path when running the command: `bs pdf --decktape <decktape_install_dir>`
