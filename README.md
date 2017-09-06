@@ -42,12 +42,6 @@ Commands:
     -s, --skip-open   Do not open browser on start
   p, pdf [files]      Export markdown files to pdf             [default: *.md]
     -o, --output      Output directory                         [default: pdf]
-    -d, --decktape    Decktape installation dir                [default: .]
-    -w, --wait        Wait time between slides in ms           [default: 1000]
-    --verbose         Show Decktape console output
-
- For pdf export to work, Decktape must be installed.
- See https://github.com/astefanutti/decktape for details.
 ```
 
 ### Creating a new presentation
@@ -87,5 +81,8 @@ If you have set a `title` variable in your document (like this `title: My Awesom
 
 Use `bs pdf` to export your all `.md` files as PDF presentations.
 
-For this feature to work, you need to install [Decktape@1.0.0](https://github.com/astefanutti/decktape/releases/tag/v1.0.0) **(newer versions do not work for now)**.
-If you have installed it in a different directory than your slides, you must provide your installation path when running the command: `bs pdf --decktape <decktape_install_dir>`
+This feature use [Puppeteer](https://github.com/GoogleChrome/puppeteer) to drive a headless Chrome instance.
+
+By default, a compatible Chromium version is automatically downloaded during package install. To skip the download, you can define the `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD` environment variable.
+
+See [Puppeteer environment variables](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#environment-variables)] for more details.

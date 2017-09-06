@@ -10,6 +10,7 @@ const sass = require('node-sass');
 const Inliner = require('inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
+const puppeteer = require('puppeteer');
 
 const TempDir = '.tmp';
 const TemplateDir = 'template';
@@ -36,12 +37,6 @@ Commands:
     -s, --skip-open   Do not open browser on start
   p, pdf [files]      Export markdown files to pdf             [default: *.md]
     -o, --output      Output directory                         [default: pdf]
-    -d, --decktape    Decktape installation dir                [default: .]
-    -w, --wait        Wait time between slides in ms           [default: 1000]
-    --verbose         Show Decktape console output
-
- For pdf export to work, Decktape must be installed.
- See https://github.com/astefanutti/decktape for details.
 `;
 
 class BackslideCli {
@@ -74,44 +69,34 @@ class BackslideCli {
   }
 
   /**
-   * Exports markdown files as pdf using an existing Decktape install.
+   * Exports markdown files as pdf using an existing Chrome headless.
    * @param {string} output The ouput dir.
-   * @param {string} decktape The path to the decktape directory.
    * @param {string[]} files The markdown files.
-   * @param {number} wait Wait time between slides in ms.
-   * @param {boolean} verbose Show decktape console output.
    * @return Promise<string[]> The exported files.
    */
-  pdf(output, decktape, files, wait, verbose) {
+  pdf(output, files) {
     let count = 0;
     let progress;
     const exportedFiles = [];
     return Promise.resolve()
       .then(() => {
         files = this._getFiles(files);
-        this._checkDecktape(decktape);
         this._checkTemplate();
         fs.mkdirpSync(output);
         progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
       })
-      .then(() => this.export(path.join(TempDir, 'pdf'), files))
+      .then(() => this.export(path.join(TempDir, 'pdf'), files, false, !this._args['no-inline']))
       .then((exportedFiles) => {
+        const promises = [];
         exportedFiles.forEach(file => {
           progress.render({ count: ++count });
           const exportedFile = path.basename(file, path.extname(file)) + '.pdf';
           exportedFiles.push(exportedFile);
-          child.execSync([
-              path.join(decktape, 'phantomjs'),
-              path.join(decktape, 'decktape.js'),
-              `-p ${wait}`,
-              file,
-              path.join(output, exportedFile)
-            ].join(' '), {
-              stdio: verbose ? [1, 2] : [2]
-            }
-          );
-          progress.tick({ count: count });
+          const promise = this._printToPdf(path.join(output, exportedFile), file)
+            .then(() => progress.tick({ count: count }));
+          promises.push(promises);
         });
+        return Promise.all(promises);
       })
       .then(() => exportedFiles)
       .catch(err => this._exit(`\nAn error occurred during pdf conversion: ${err && err.message || err}`));
@@ -201,6 +186,25 @@ class BackslideCli {
       .then(() => nextFile())
       .then(() => exportedFiles)
       .catch(err => this._exit(`\nAn error occurred during html export: ${err && err.message || err}`));
+  }
+
+  _printToPdf(output, file) {
+    let browser, page;
+    return puppeteer.launch()
+      .then(instance => {
+        browser = instance;
+        return browser.newPage();
+      })
+      .then(newPage => {
+        page = newPage;
+        return page.goto(`file://${path.resolve(file)}`, {waitUntil: 'networkidle'});
+      })
+      .then(() => page.pdf({path: output}))
+      .then(() => browser.close())
+      .catch(err => {
+        browser.close();
+        throw err;
+      });
   }
 
   _startServer(dir, port, open) {
@@ -295,12 +299,6 @@ class BackslideCli {
     });
   }
 
-  _checkDecktape(dir) {
-    if (!fs.existsSync(path.join(dir, 'phantomjs')) || !fs.existsSync(path.join(dir, 'decktape.js'))) {
-      throw new Error('Decktape not found');
-    }
-  }
-
   _checkTemplate() {
     if (!fs.existsSync(path.join(TemplateDir, HtmlTemplate))) {
       throw new Error(`${path.join(TemplateDir, HtmlTemplate)} not found`);
@@ -393,10 +391,7 @@ class BackslideCli {
           !this._args['no-inline']);
       case 'p':
       case 'pdf':
-        return this.pdf(this._args.output || 'pdf',
-          this._args.decktape || '.',
-          _.slice(1), this._args.wait || 1000,
-          this._args.verbose);
+        return this.pdf(this._args.output || 'pdf', _.slice(1));
       default:
         this._help();
     }
@@ -405,14 +400,12 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'no-inline'],
-  string: ['output', 'decktape'],
-  number: ['port', 'wait'],
+  boolean: ['force', 'skip-open', 'strip-notes', 'no-inline'],
+  string: ['output'],
+  number: ['port'],
   alias: {
     o: 'output',
     p: 'port',
-    d: 'decktape',
-    w: 'wait',
     s: 'skip-open',
     r: 'strip-notes',
     l: 'no-inline'
