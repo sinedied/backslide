@@ -94,7 +94,7 @@ class BackslideCli {
           exportedFiles.push(exportedFile);
           const promise = this._printToPdf(path.join(output, exportedFile), file)
             .then(() => progress.tick({ count: count }));
-          promises.push(promises);
+          promises.push(promise);
         });
         return Promise.all(promises);
       })
