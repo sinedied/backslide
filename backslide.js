@@ -89,7 +89,7 @@ class BackslideCli {
         fs.mkdirpSync(output);
         progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
       })
-      .then(() => this.export(path.join(TempDir, 'pdf'), files))
+      .then(() => this.export(path.join(TempDir, 'pdf'), files, false, !this._args['no-inline']))
       .then((exportedFiles) => {
         exportedFiles.forEach(file => {
           progress.render({ count: ++count });
