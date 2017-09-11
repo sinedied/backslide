@@ -17,3 +17,5 @@ script:
   - cd travis
   - bs init
   - bs export
+  - bs pdf
+  
