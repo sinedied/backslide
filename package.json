@@ -33,14 +33,15 @@
   },
   "dependencies": {
     "browser-sync": "^2.18.8",
+    "chrome-launcher": "^0.6.0",
+    "chrome-remote-interface": "^0.24.5",
     "fs-extra": "^4.0.1",
     "glob": "^7.1.1",
     "inliner": "^1.11.0",
     "minimist": "^1.2.0",
     "mustache": "^2.3.0",
     "node-sass": "^4.5.2",
-    "progress": "^2.0.0",
-    "puppeteer": "^0.10.2"
+    "progress": "^2.0.0"
   },
   "devDependencies": {
     "eslint": "^4.6.1",

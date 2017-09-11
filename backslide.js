@@ -10,7 +10,8 @@ const sass = require('node-sass');
 const Inliner = require('inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
-const puppeteer = require('puppeteer');
+const chromeLauncher = require('chrome-launcher');
+const CDP = require('chrome-remote-interface');
 
 const TempDir = '.tmp';
 const TemplateDir = 'template';
@@ -189,21 +190,40 @@ class BackslideCli {
   }
 
   _printToPdf(output, file) {
-    let browser, page;
-    return puppeteer.launch()
+    let browser, protocol, Page;
+    return chromeLauncher.launch({chromeFlags: ['--headless', '--disable-gpu']})
       .then(instance => {
         browser = instance;
-        return browser.newPage();
+        return CDP({port: browser.port});
       })
-      .then(newPage => {
-        page = newPage;
-        return page.goto(`file://${path.resolve(file)}`, {waitUntil: 'networkidle'});
+      .then(cdp => {
+        protocol = cdp;
+        Page = protocol.Page;
+        return Page.enable();
       })
-      .then(() => page.pdf({path: output}))
-      .then(() => browser.close())
-      .catch(err => {
-        browser.close();
-        throw err;
+      .then(() => Page.navigate({url: `file://${path.resolve(file)}`}))
+      .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
+      .then(() => Page.printToPDF({
+        paperWidth: 12.6,
+        paperHeight: 7.1,
+        printBackground: true,
+        marginTop: 0,
+        marginBottom: 0,
+        marginLeft: 0,
+        marginRight: 0
+      }))
+      .then(pdf => {
+        fs.writeFileSync(output, Buffer.from(pdf.data, 'base64'));
+        protocol.close();
+        browser.kill();
+      })
+      .catch(() => {
+        if (protocol) {
+          protocol.close();
+        }
+        if (browser) {
+          browser.kill();
+        }
       });
   }
 
