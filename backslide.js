@@ -36,12 +36,8 @@ Commands:
     -s, --skip-open   Do not open browser on start
   p, pdf [files]      Export markdown files to pdf             [default: *.md]
     -o, --output      Output directory                         [default: pdf]
-    -d, --decktape    Decktape installation dir                [default: .]
     -w, --wait        Wait time between slides in ms           [default: 1000]
     --verbose         Show Decktape console output
-
- For pdf export to work, Decktape must be installed.
- See https://github.com/astefanutti/decktape for details.
 `;
 
 class BackslideCli {
@@ -89,7 +85,6 @@ class BackslideCli {
     return Promise.resolve()
       .then(() => {
         files = this._getFiles(files);
-        this._checkDecktape(decktape);
         this._checkTemplate();
         fs.mkdirpSync(output);
         progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
@@ -101,10 +96,10 @@ class BackslideCli {
           const exportedFile = path.basename(file, path.extname(file)) + '.pdf';
           exportedFiles.push(exportedFile);
           child.execSync([
-              path.join(decktape, 'phantomjs'),
-              path.join(decktape, 'decktape.js'),
+              'node',
+              require.resolve('decktape'),
               `-p ${wait}`,
-              file,
+              `file://${path.resolve(file)}`,
               path.join(output, exportedFile)
             ].join(' '), {
               stdio: verbose ? [1, 2] : [2]
@@ -293,12 +288,6 @@ class BackslideCli {
       },
       (err, result) => err ? reject(err) : resolve(result.css));
     });
-  }
-
-  _checkDecktape(dir) {
-    if (!fs.existsSync(path.join(dir, 'phantomjs')) || !fs.existsSync(path.join(dir, 'decktape.js'))) {
-      throw new Error('Decktape not found');
-    }
   }
 
   _checkTemplate() {
