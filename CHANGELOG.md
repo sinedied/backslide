@@ -1,3 +1,8 @@
+# 2.0.0
+
+- Use `decktape@2` for PDF export, external installation is no more needed
+- Removed support for Node 6
+
 # 1.2.1
 
 - Use `fs-extra` instead of deprecated `fs-promise` (PR #6)
@@ -5,7 +10,7 @@
 
 # 1.2.0
 
-+ Added option to disable resources inlining on export
+- Added option to disable resources inlining on export
 
 # 1.1.1
 
@@ -13,8 +18,8 @@
 
 # 1.1.0
 
-+ Added option to skip opening browser on serve
-+ Added option to strip presenter notes on export
+- Added option to skip opening browser on serve
+- Added option to strip presenter notes on export
 
 # 1.0.3
 
