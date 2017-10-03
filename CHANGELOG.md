@@ -1,3 +1,7 @@
+# 2.1.0
+
+- Added support for custom template (#12)
+
 # 2.0.0
 
 - Use `decktape@2` for PDF export, external installation is no more needed
