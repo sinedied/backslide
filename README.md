@@ -31,19 +31,20 @@ npm install -g backslide
 Usage: bs [init|serve|export|pdf] [options]
 
 Commands:
-  i, init             Init new presentation in current directory
-    --force           Overwrite existing files
-  e, export [files]   Export markdown files to html slides     [default: *.md]
-    -o, --output      Output directory                         [default: dist]
-    -r, --strip-notes Strip presenter notes
-    -l, --no-inline   Do not inline external resources
-  s, serve [dir]      Start dev server for specified directory [default: .]
-    -p, --port        Port number to listen on                 [default: 4100]
-    -s, --skip-open   Do not open browser on start
-  p, pdf [files]      Export markdown files to pdf             [default: *.md]
-    -o, --output      Output directory                         [default: pdf]
-    -w, --wait        Wait time between slides in ms           [default: 1000]
-    --verbose         Show Decktape console output
+  i, init                 Init new presentation in current directory
+    -t, --template <dir>  Use custom template directory
+    --force               Overwrite existing files
+  e, export [files]       Export markdown files to html slides [default: *.md]
+    -o, --output          Output directory                     [default: dist]
+    -r, --strip-notes     Strip presenter notes
+    -l, --no-inline       Do not inline external resources
+  s, serve [dir]          Start dev server for specified dir.  [default: .]
+    -p, --port            Port number to listen on             [default: 4100]
+    -s, --skip-open       Do not open browser on start
+  p, pdf [files]          Export markdown files to pdf         [default: *.md]
+    -o, --output          Output directory                     [default: pdf]
+    -w, --wait            Wait time between slides in ms       [default: 1000]
+    --verbose             Show Decktape console output
 ```
 
 ### Creating a new presentation
@@ -53,6 +54,9 @@ Use `bs init` to create a new presentation along with a `template` directory in 
 Then edit the file `presentation.md` to get started.
 
 You can create as many markdown presentations as you want in the directory, they will all be based on the same template.
+
+If you want to start a new presentation using your own custom template, you can use `bs init --template <your_template_dir>`.
+You can also set the environment variable `BACKLIDE_TEMPLATE_DIR` to change the default template used by `bs init`.
 
 ### Making your slides
 

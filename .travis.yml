@@ -3,6 +3,10 @@ node_js:
   - 'node'
   - '7'
 
+branches:
+  only:
+    - 'master'
+
 matrix:
   fast_finish: true
 
