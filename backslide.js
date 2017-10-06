@@ -20,7 +20,7 @@ const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const PausesRegExp = /(^--[^-][\s\S])/gm;
 const MdRelativeImagesRegExp = /(!\[.*?\]\()((?!\/|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
-const HtmlRelativeImagesRegExp = /(<img[^>]+src=(?:\"|\'))((?!\/|http:\/\/|https:\/\/|file:\/\/).[^">]+?)(\"|\')/gm;
+const HtmlRelativeImagesRegExp = /(<img[^>]+src=(?:"|'))((?!\/|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
