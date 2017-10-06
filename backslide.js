@@ -18,6 +18,9 @@ const HtmlTemplate = 'index.html';
 const SassTemplate = 'style.scss';
 const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
+const PausesRegExp = /(^--[^-][\s\S])/gm;
+const MdRelativeImagesRegExp = /(!\[.*?\]\()((?!\/|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
+const HtmlRelativeImagesRegExp = /(<img[^>]+src=(?:\"|\'))((?!\/|http:\/\/|https:\/\/|file:\/\/).[^">]+?)(\"|\')/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -28,16 +31,18 @@ Commands:
   i, init                 Init new presentation in current directory
     -t, --template <dir>  Use custom template directory
     --force               Overwrite existing files
-  e, export [files]       Export markdown files to html slides [default: *.md]
-    -o, --output          Output directory                     [default: dist]
-    -r, --strip-notes     Strip presenter notes
-    -l, --no-inline       Do not inline external resources
-  s, serve [dir]          Start dev server for specified dir.  [default: .]
-    -p, --port            Port number to listen on             [default: 4100]
-    -s, --skip-open       Do not open browser on start
-  p, pdf [files]          Export markdown files to pdf         [default: *.md]
-    -o, --output          Output directory                     [default: pdf]
-    -w, --wait            Wait time between slides in ms       [default: 1000]
+  e, export [files]       Export markdown files to html slides   [default: *.md]
+    -o, --output          Output directory                       [default: dist]
+    -r, --strip-notes     Strip presenter notes                  
+    -h, --handouts        Strip presentation pauses for handouts [default: false]
+    -l, --no-inline       Do not inline external resources       
+  s, serve [dir]          Start dev server for specified dir.    [default: .]
+    -p, --port            Port number to listen on               [default: 4100]
+    -s, --skip-open       Do not open browser on start           
+  p, pdf [files]          Export markdown files to pdf           [default: *.md]
+    -o, --output          Output directory                       [default: pdf]
+    -h, --handouts        Strip presentation pauses for handouts [default: true]
+    -w, --wait            Wait time between slides in ms         [default: 1000]
     --verbose             Show Decktape console output
 `;
 
@@ -80,7 +85,7 @@ class BackslideCli {
    * @param {boolean} verbose Show decktape console output.
    * @return Promise<string[]> The exported files.
    */
-  pdf(output, decktape, files, wait, verbose) {
+  pdf(output, decktape, files, wait, handouts, verbose) {
     let count = 0;
     let progress;
     const exportedFiles = [];
@@ -91,7 +96,7 @@ class BackslideCli {
         fs.mkdirpSync(output);
         progress = new Progress(':percent converting pdf :count/:total', { total: files.length });
       })
-      .then(() => this.export(path.join(TempDir, 'pdf'), files, false, !this._args['no-inline']))
+      .then(() => this.export(path.join(TempDir, 'pdf'), files, false, handouts, true, !this._args['no-inline']))
       .then((exportedFiles) => {
         exportedFiles.forEach(file => {
           progress.render({ count: ++count });
@@ -171,10 +176,12 @@ class BackslideCli {
    * @param {string} output The ouput dir.
    * @param {string[]} files The markdown files.
    * @param {boolean} stripNotes True to strip presenter notes.
+   * @param {boolean} stripPauses True to strip presention pauses (useful for handouts).
+   * @param {boolean} fixRelativePath True to fix relative image paths in markdown
    * @param {boolean} inline True to inline external resources.
    * @return Promise<string[]> The exported files.
    */
-  export(output, files, stripNotes, inline) {
+  export(output, files, stripNotes, stripPauses, fixRelativePaths, inline) {
     let count = 0;
     let progress;
     const exportedFiles = [];
@@ -183,7 +190,7 @@ class BackslideCli {
       if (count < files.length) {
         const file = files[count++];
         progress.render({ count: count });        
-        return this._exportFile(output, file, stripNotes, inline)
+        return this._exportFile(output, file, stripNotes, stripPauses, fixRelativePaths, inline)
           .then(exportedFile => exportedFiles.push(exportedFile))
           .then(() => progress.tick({ count: count }))
           .then(nextFile);
@@ -234,9 +241,10 @@ class BackslideCli {
       });
   }
 
-  _exportFile(dir, file, stripNotes, inline) {
+  _exportFile(dir, file, stripNotes, stripPauses, fixRelativePath, inline) {
     let html, md;
     const filename = path.basename(file, path.extname(file)) + '.html';
+    const dirname = path.dirname(path.resolve(file));
     const exportedFile = path.join(dir, filename);
     return Promise.all([
         fs.readFile(file),
@@ -247,6 +255,14 @@ class BackslideCli {
         md = results[0].toString();
         if (stripNotes) {
           md = md.replace(NotesRegExp, '$1');
+        }
+        if (stripPauses) {
+          md = md.replace(PausesRegExp, '');
+        }
+        // fix relative paths (w.r.t. the markdown source file)
+        if (fixRelativePath) { // fixRelativePath          
+          md = md.replace(MdRelativeImagesRegExp, '$1file://' + dirname + '/$2$3');
+          md = md.replace(HtmlRelativeImagesRegExp, '$1file://' + dirname + '/$2$3');
         }
         html = results[1].toString();
         return results[2];
@@ -381,22 +397,24 @@ class BackslideCli {
         return this.export(this._args.output || 'dist',
           _.slice(1),
           this._args['strip-notes'],
+          this._args.handouts,
+          true,
           !this._args['no-inline']);
       case 'p':
       case 'pdf':
         return this.pdf(this._args.output || 'pdf',
           this._args.decktape || '.',
           _.slice(1), this._args.wait || 1000,
+          this._args.handouts || true,
           this._args.verbose);
       default:
         this._help();
     }
   }
-
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'no-inline'],
+  boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'handouts', 'no-inline'],
   string: ['output', 'decktape', 'template'],
   number: ['port', 'wait'],
   alias: {
@@ -407,7 +425,8 @@ new BackslideCli(require('minimist')(process.argv.slice(2), {
     s: 'skip-open',
     r: 'strip-notes',
     l: 'no-inline',
-    t: 'template'
+    t: 'template',
+    h: 'handouts'
   }
 }));
 
