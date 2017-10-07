@@ -10,6 +10,7 @@ const sass = require('node-sass');
 const Inliner = require('inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
+const updateNotifier = require('update-notifier');
 
 const TempDir = '.tmp';
 const StarterDir = 'starter';
@@ -384,6 +385,8 @@ class BackslideCli {
   }
 
   _runCommand() {
+    updateNotifier({pkg}).notify();
+    
     const _ = this._args._;
     switch (_[0]) {
       case 'i':
