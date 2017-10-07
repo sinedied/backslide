@@ -20,8 +20,8 @@ const SassTemplate = 'style.scss';
 const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const FragmentsRegExp = /(^--[^-][\s\S])/gm;
-const MdRelativeImagesRegExp = /(!\[.*?\]\()((?!\/|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
-const HtmlRelativeImagesRegExp = /(<img[^>]+src=(?:"|'))((?!\/|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
+const MdRelativeImagesRegExp = /(!\[.*?\]\()((?!\/|http:\/\/|https:\/\/|file:\/\/|data:).+?)((?=\)))/gm;
+const HtmlRelativeImagesRegExp = /(<img[^>]+src=(?:"|'))((?!\/|http:\/\/|https:\/\/|file:\/\/|data:).[^">]+?)("|')/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -260,10 +260,10 @@ class BackslideCli {
         if (stripFragments) {
           md = md.replace(FragmentsRegExp, '');
         }
-        // fix relative paths (w.r.t. the markdown source file)
-        if (fixRelativePath) { // fixRelativePath          
-          md = md.replace(MdRelativeImagesRegExp, '$1file://' + dirname + '/$2$3');
-          md = md.replace(HtmlRelativeImagesRegExp, '$1file://' + dirname + '/$2$3');
+        // Make paths relative to the markdown source file
+        if (fixRelativePath) {
+          md = md.replace(MdRelativeImagesRegExp, `$1file://${dirname}/$2$3`);
+          md = md.replace(HtmlRelativeImagesRegExp, `$1file://${dirname}/$2$3`);
         }
         html = results[1].toString();
         return results[2];
@@ -386,7 +386,7 @@ class BackslideCli {
 
   _runCommand() {
     updateNotifier({pkg}).notify();
-    
+
     const _ = this._args._;
     switch (_[0]) {
       case 'i':
