@@ -1,10 +1,9 @@
-test/
-example/
-dist/
 .tmp/
 .idea/
+test/
+dist/
+example/
+template/
 .eslintrc.json
 .gitignore
 .travis.yml
-.DS_Store
-npm-debug.log

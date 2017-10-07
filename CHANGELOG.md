@@ -1,3 +1,7 @@
+# 2.2.1
+- Fixed export with `data:uri` images
+- Added update notifier
+
 # 2.2.0
 - Added option to strip fragments on export/pdf for handouts (https://github.com/sinedied/backslide/pull/14)
 - Fixed relative image paths in export/pdf (https://github.com/sinedied/backslide/pull/14)

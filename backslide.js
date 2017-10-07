@@ -11,6 +11,7 @@ const Inliner = require('inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
 const mime = require('mime');
+const updateNotifier = require('update-notifier');
 
 const TempDir = '.tmp';
 const StarterDir = 'starter';
@@ -21,7 +22,7 @@ const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const FragmentsRegExp = /(^--[^-][\s\S])/gm;
 const MdRelativeURLRegExp = /(!?\[.*?\]\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
-const HtmlRelativeURLRegExp = /(<(?:img|link|script)[^>]+(?:src|href)=(?:"|'))((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
+const HtmlRelativeURLRegExp = /(<(?:img|link|script|a)[^>]+(?:src|href)=(?:"|'))((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
 const CssRelativeURLRegExp = /(url\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^)]+)(\))/gm;
 const MdImagesRegExp = /(!\[.*?\]\()((?!data:).+?)((?=\)))/gm;
 const HtmlImagesRegExp = /(<img[^>]+src=(?:"|'))((?!data:).[^">]+?)("|')/gm;
@@ -263,11 +264,11 @@ class BackslideCli {
         if (stripFragments) {
           md = md.replace(FragmentsRegExp, '');
         }
-        // fix relative paths (w.r.t. the markdown source file)
-        if (fixRelativePath) { // fixRelativePath          
-          md = md.replace(MdRelativeURLRegExp, '$1file://' + dirname + '/$2$3');
-          md = md.replace(HtmlRelativeURLRegExp, '$1file://' + dirname + '/$2$3');
-        }       
+        // Make paths relative to the markdown source file
+        if (fixRelativePath) {
+          md = md.replace(MdRelativeURLRegExp, `$1file://${dirname}/$2$3`);
+          md = md.replace(HtmlRelativeURLRegExp, `$1file://${dirname}/$2$3`);
+        }   
         if (inline) { 
           // inline images
           let match = MdImagesRegExp.exec(md);
@@ -298,7 +299,7 @@ class BackslideCli {
             }
             md = md.replace(new RegExp(match[2], 'g'), cache[url]);
             match = HtmlImagesRegExp.exec(md);
-          }      
+          }                
         }
         html = results[1].toString();
         // fix relative path w.r.t. TemplateDir in case of no-inline
@@ -430,6 +431,8 @@ class BackslideCli {
   }
 
   _runCommand() {
+    updateNotifier({pkg}).notify();
+
     const _ = this._args._;
     switch (_[0]) {
       case 'i':
