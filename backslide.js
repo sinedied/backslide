@@ -31,18 +31,18 @@ Commands:
   i, init                 Init new presentation in current directory
     -t, --template <dir>  Use custom template directory
     --force               Overwrite existing files                 
-  e, export [files]       Export markdown files to html slides      [default: *.md]
-    -o, --output          Output directory                          [default: dist]
+  e, export [files]       Export markdown files to html slides [default: *.md]
+    -o, --output          Output directory                     [default: dist]
     -r, --strip-notes     Strip presenter notes                     
-    -h, --handouts        Strip presentation fragments for handouts [default: false]
+    -h, --handouts        Strip slide fragments for handouts
     -l, --no-inline       Do not inline external resources          
-  s, serve [dir]          Start dev server for specified dir.       [default: .]
-    -p, --port            Port number to listen on                  [default: 4100]
+  s, serve [dir]          Start dev server for specified dir.  [default: .]
+    -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start              
-  p, pdf [files]          Export markdown files to pdf              [default: *.md]
-    -o, --output          Output directory                          [default: pdf]
-    -h, --handouts        Strip presentation fragments for handouts [default: true]
-    -w, --wait            Wait time between slides in ms            [default: 1000]
+  p, pdf [files]          Export markdown files to pdf         [default: *.md]
+    -h, --handouts        Strip slide fragments for handouts
+    -o, --output          Output directory                     [default: pdf]
+    -w, --wait            Wait time between slides in ms       [default: 1000]
     --verbose             Show Decktape console output
 `;
 
@@ -405,7 +405,7 @@ class BackslideCli {
         return this.pdf(this._args.output || 'pdf',
           this._args.decktape || '.',
           _.slice(1), this._args.wait || 1000,
-          this._args.handouts || true,
+          this._args.handouts,
           this._args.verbose);
       default:
         this._help();
