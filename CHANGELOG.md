@@ -1,8 +1,3 @@
-# 2.1.1
-
-- Added option to strip pauses on export/pdf for handouts
-- Fixed relative image paths in export/pdf
-
 # 2.1.0
 
 - Added support for custom template (#12)
