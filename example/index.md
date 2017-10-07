@@ -61,7 +61,7 @@ class: middle
 
 ## Installation
 
-- **Prerequisites**: [NodeJS](https://nodejs.org) v6+ and [Decktape](https://github.com/astefanutti/decktape) for PDF export (optional)
+- **Prerequisites**: [NodeJS](https://nodejs.org) v7.6+
 
 ```sh
 $ npm install -g backslide
@@ -71,7 +71,7 @@ $ bs init
 $ bs serve
 ```
 
-Open `presentation.md` with your favorite editor and start making changes!
+Open `presentation.md` with your favorite [editor](https://code.visualstudio.com) and start making changes!
 
 ---
 
@@ -98,7 +98,7 @@ Use `bs export` to export your presentations as self-contained HTML.
 
 Use `bs pdf` to export your presentations as PDF.
 
-> For this feature to work, you need to install [Decktape](https://github.com/astefanutti/decktape).
+> This feature use [Decktape](https://github.com/astefanutti/decktape).
 
 ---
 
