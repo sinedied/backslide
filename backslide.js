@@ -24,8 +24,8 @@ const FragmentsRegExp = /(^--[^-][\s\S])/gm;
 const MdRelativeURLRegExp = /(!?\[.*?\]\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
 const HtmlRelativeURLRegExp = /(<(?:img|link|script|a)[^>]+(?:src|href)=(?:"|'))((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
 const CssRelativeURLRegExp = /(url\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^)]+)(\))/gm;
-const MdImagesRegExp = /(!\[.*?\]\()((?!data:).+?)((?=\)))/gm;
-const HtmlImagesRegExp = /(<img[^>]+src=(?:"|'))((?!data:).[^">]+?)("|')/gm;
+const MdImagesRegExp = /(!\[.*?\]\()(file:\/\/\/.+?)((?=\)))/gm;
+const HtmlImagesRegExp = /(<img[^>]+src=(?:"|'))(file:\/\/\/.[^">]+?)("|')/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
