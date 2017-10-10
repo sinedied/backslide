@@ -10,6 +10,7 @@ const sass = require('node-sass');
 const Inliner = require('inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
+const mime = require('mime');
 const updateNotifier = require('update-notifier');
 
 const TempDir = '.tmp';
@@ -20,8 +21,11 @@ const SassTemplate = 'style.scss';
 const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const FragmentsRegExp = /(^--[^-][\s\S])/gm;
-const MdRelativeImagesRegExp = /(!\[.*?\]\()((?!\/|http:\/\/|https:\/\/|file:\/\/|data:).+?)((?=\)))/gm;
-const HtmlRelativeImagesRegExp = /(<img[^>]+src=(?:"|'))((?!\/|http:\/\/|https:\/\/|file:\/\/|data:).[^">]+?)("|')/gm;
+const MdRelativeURLRegExp = /(!?\[.*?\]\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
+const HtmlRelativeURLRegExp = /(<(?:img|link|script|a)[^>]+(?:src|href)=(?:"|'))((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
+const CssRelativeURLRegExp = /(url\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^)]+)(\))/gm;
+const MdImagesRegExp = /(!\[.*?\]\()(file:\/\/\/.+?)((?=\)))/gm;
+const HtmlImagesRegExp = /(<img[^>]+src=(?:"|'))(file:\/\/\/.[^">]+?)("|')/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -262,20 +266,62 @@ class BackslideCli {
         }
         // Make paths relative to the markdown source file
         if (fixRelativePath) {
-          md = md.replace(MdRelativeImagesRegExp, `$1file://${dirname}/$2$3`);
-          md = md.replace(HtmlRelativeImagesRegExp, `$1file://${dirname}/$2$3`);
+          md = md.replace(MdRelativeURLRegExp, `$1file://${dirname}/$2$3`);
+          md = md.replace(HtmlRelativeURLRegExp, `$1file://${dirname}/$2$3`);
+        }   
+        if (inline) { 
+          // inline images
+          let match = MdImagesRegExp.exec(md);
+          const cache = {};
+          while (match) {                   
+            const url = match[2].replace(/^file:\/\//g, '');
+            if (!cache[url]) {
+              try {              
+                const b = fs.readFileSync(url);
+                cache[url] = 'data:' + mime.lookup(match[2]) + ';base64,' + b.toString('base64');
+              } catch (e) {
+                console.error(e.message);
+              }
+            }
+            md = md.replace(new RegExp(match[2], 'g'), cache[url]);
+            match = MdImagesRegExp.exec(md);
+          }        
+          match = HtmlImagesRegExp.exec(md);
+          while (match) {                   
+            const url = match[2].replace(/^file:\/\//g, '');
+            if (!cache[url]) {
+              try {              
+                const b = fs.readFileSync(url);
+                cache[url] = 'data:' + mime.lookup(match[2]) + ';base64,' + b.toString('base64');
+              } catch (e) {
+                console.error(e.message);
+              }
+            }
+            md = md.replace(new RegExp(match[2], 'g'), cache[url]);
+            match = HtmlImagesRegExp.exec(md);
+          }                
         }
         html = results[1].toString();
+        // fix relative path w.r.t. TemplateDir in case of no-inline
+        if (fixRelativePath && !inline) {
+          html = html.replace(HtmlRelativeURLRegExp, '$1file://' + path.resolve(TemplateDir) + '/$2$3');
+          html = html.replace(CssRelativeURLRegExp, '$1file://' + path.resolve(TemplateDir) + '/$2$3');
+        }
         return results[2];
       })
-      .then(css => Mustache.render(html, {
-        source: `source: ${JSON.stringify(md)}`,
-        style: `<style>\n${css}\n</style>`,
-        title: this._getTitle(md) || path.basename(file, path.extname(file))
-      }))
+      .then(css => {
+        // fix relative path w.r.t. TemplateDir in case of no-inline
+        if (fixRelativePath && !inline)
+          css = css.toString().replace(CssRelativeURLRegExp, '$1file://' + path.resolve(TemplateDir) + '/$2$3');
+        return Mustache.render(html, {
+          source: `source: ${JSON.stringify(md)}`,
+          style: `<style>\n${css}\n</style>`,
+          title: this._getTitle(md) || path.basename(file, path.extname(file))
+        })
+      })
       .then(html => {
-        this._suppressErrorOutput();
-        return inline ? this._inline(TemplateDir, html) : html
+        this._suppressErrorOutput();                      
+        return inline ? this._inline(TemplateDir, html) : html        
       })
       .then(html => {
         process.chdir(this._pwd);
