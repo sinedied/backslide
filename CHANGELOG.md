@@ -1,3 +1,7 @@
+# 2.3.0
+- Inline local images in markdown (PR https://github.com/sinedied/backslide/pull/16)
+- Fixed relative paths also in html template and sass styles (PR https://github.com/sinedied/backslide/pull/16)
+
 # 2.2.1
 - Fixed export with `data:uri` images
 - Added update notifier

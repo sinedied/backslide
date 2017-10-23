@@ -81,7 +81,8 @@ The stylesheet is written in [Sass](http://sass-lang.com), but you can use plain
 
 Use `bs export` to export all your `.md` files as HTML presentations.
 
-Everything will be inlined in the HTML document (scripts, css, etc) so you don't need a network to show your presentation. If you have images, it's best to include them as [data-uri](https://css-tricks.com/data-uris/) in your markdown, so they can be embedded too.
+Everything will be inlined in the HTML document (scripts, css, etc) so you don't need a network to show your presentation.
+If you have images, it's best to include them as [data-uri](https://css-tricks.com/data-uris/) in your markdown, but local images links are inlined too during export.
 
 If you have set a `title` variable in your document (like this `title: My Awesome Presentation`), it will be used as the HTML document title, otherwise the file name will be used.
 
