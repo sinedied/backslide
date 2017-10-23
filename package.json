@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "browser-sync": "^2.18.13",
-    "decktape": "^2.4.2",
+    "decktape": "^2.4.3",
     "fs-extra": "^4.0.2",
     "glob": "^7.1.2",
     "inliner": "^1.12.5",
@@ -42,10 +42,10 @@
     "mustache": "^2.3.0",
     "node-sass": "^4.5.3",
     "progress": "^2.0.0",
-    "update-notifier": "^2.2.0"
+    "update-notifier": "^2.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.8.0",
+    "eslint": "^4.9.0",
     "gh-pages": "^1.0.0"
   },
   "engines": {
