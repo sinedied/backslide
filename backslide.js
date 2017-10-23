@@ -26,6 +26,7 @@ const HtmlRelativeURLRegExp = /(<(?:img|link|script|a)[^>]+(?:src|href)=(?:"|'))
 const CssRelativeURLRegExp = /(url\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^)]+)(\))/gm;
 const MdImagesRegExp = /(!\[.*?\]\()(file:\/\/\/.+?)((?=\)))/gm;
 const HtmlImagesRegExp = /(<img[^>]+src=(?:"|'))(file:\/\/\/.[^">]+?)("|')/gm;
+const CssImagesRegExp = /(url\()((file:\/\/)[^)]+)(\))/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -264,55 +265,22 @@ class BackslideCli {
         if (stripFragments) {
           md = md.replace(FragmentsRegExp, '');
         }
-        // Make paths relative to the markdown source file
         if (fixRelativePath) {
-          md = md.replace(MdRelativeURLRegExp, `$1file://${dirname}/$2$3`);
-          md = md.replace(HtmlRelativeURLRegExp, `$1file://${dirname}/$2$3`);
+          md = this._makePathRelativeTo(md, dirname, [MdRelativeURLRegExp, HtmlRelativeURLRegExp, CssRelativeURLRegExp]);
         }   
         if (inline) { 
-          // inline images
-          let match = MdImagesRegExp.exec(md);
-          const cache = {};
-          while (match) {                   
-            const url = match[2].replace(/^file:\/\//g, '');
-            if (!cache[url]) {
-              try {              
-                const b = fs.readFileSync(url);
-                cache[url] = 'data:' + mime.lookup(match[2]) + ';base64,' + b.toString('base64');
-              } catch (e) {
-                console.error(e.message);
-              }
-            }
-            md = md.replace(new RegExp(match[2], 'g'), cache[url]);
-            match = MdImagesRegExp.exec(md);
-          }        
-          match = HtmlImagesRegExp.exec(md);
-          while (match) {                   
-            const url = match[2].replace(/^file:\/\//g, '');
-            if (!cache[url]) {
-              try {              
-                const b = fs.readFileSync(url);
-                cache[url] = 'data:' + mime.lookup(match[2]) + ';base64,' + b.toString('base64');
-              } catch (e) {
-                console.error(e.message);
-              }
-            }
-            md = md.replace(new RegExp(match[2], 'g'), cache[url]);
-            match = HtmlImagesRegExp.exec(md);
-          }                
+          md = this._inlineImages(md, [MdImagesRegExp, HtmlImagesRegExp, CssImagesRegExp]);
         }
         html = results[1].toString();
-        // fix relative path w.r.t. TemplateDir in case of no-inline
         if (fixRelativePath && !inline) {
-          html = html.replace(HtmlRelativeURLRegExp, '$1file://' + path.resolve(TemplateDir) + '/$2$3');
-          html = html.replace(CssRelativeURLRegExp, '$1file://' + path.resolve(TemplateDir) + '/$2$3');
+          html = this._makePathRelativeTo(html, TemplateDir, [HtmlRelativeURLRegExp, CssRelativeURLRegExp]);
         }
         return results[2];
       })
       .then(css => {
-        // fix relative path w.r.t. TemplateDir in case of no-inline
-        if (fixRelativePath && !inline)
-          css = css.toString().replace(CssRelativeURLRegExp, '$1file://' + path.resolve(TemplateDir) + '/$2$3');
+        if (fixRelativePath && !inline) {
+          css = this._makePathRelativeTo(css.toString(), TemplateDir, [CssRelativeURLRegExp]);
+        }
         return Mustache.render(html, {
           source: `source: ${JSON.stringify(md)}`,
           style: `<style>\n${css}\n</style>`,
@@ -329,6 +297,35 @@ class BackslideCli {
       })
       .then(() => this._restoreErrorOutput())
       .then(() => exportedFile)
+  }
+
+  _makePathRelativeTo(contents, dir, regexps) {
+    // Make paths relative to the specified directory
+    regexps.forEach(regexp => {
+      contents = contents.replace(regexp, `$1file://${path.resolve(dir)}/$2$3`);
+    });
+    return contents;
+  }
+
+  _inlineImages(contents, regexps) {
+    const cache = {};
+    regexps.forEach(regexp => {
+      let match = regexp.exec(contents);
+      while (match) {                   
+        const url = match[2].replace(/^file:\/\//g, '');
+        if (!cache[url]) {
+          try {              
+            const b = fs.readFileSync(url);
+            cache[url] = `data:${mime.lookup(match[2])};base64,${b.toString('base64')}`;
+          } catch (e) {
+            console.error(e.message);
+          }
+        }
+        contents = contents.replace(new RegExp(match[2], 'g'), cache[url]);
+        match = regexp.exec(contents);
+      }
+    });
+    return contents;
   }
 
   _inline(basedir, html) {
