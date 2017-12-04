@@ -58,7 +58,7 @@ Then edit the file `presentation.md` to get started.
 You can create as many markdown presentations as you want in the directory, they will all be based on the same template.
 
 If you want to start a new presentation using your own custom template, you can use `bs init --template <your_template_dir>`.
-You can also set the environment variable `BACKLIDE_TEMPLATE_DIR` to change the default template used by `bs init`.
+You can also set the environment variable `BACKSLIDE_TEMPLATE_DIR` to change the default template used by `bs init`.
 
 ### Making your slides
 
