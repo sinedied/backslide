@@ -24,7 +24,7 @@
     "bs": "./bin/bs"
   },
   "scripts": {
-    "init": "cp -Rf starter/template template",
+    "init": "cp -r --preserve=mode starter/template template",
     "start": "npm run init -s && node ./bin/bs serve example",
     "clean": "rm -rf .tmp dist template",
     "test": "eslint *.js",
