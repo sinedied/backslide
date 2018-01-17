@@ -455,7 +455,7 @@ class BackslideCli {
           this._args.decktape || '.',
           _.slice(1), this._args.wait || 1000,
           this._args.handouts,
-          this.args.verbose,
+          this._args.verbose,
           this._args._);
       default:
         this._help();
