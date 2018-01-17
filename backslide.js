@@ -477,7 +477,8 @@ new BackslideCli(require('minimist')(process.argv.slice(2), {
     l: 'no-inline',
     t: 'template',
     h: 'handouts'
-  }
+  },
+  '--': true
 }));
 
 exports = BackslideCli;
