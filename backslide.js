@@ -50,6 +50,7 @@ Commands:
     -o, --output          Output directory                     [default: pdf]
     -w, --wait            Wait time between slides in ms       [default: 1000]
     --verbose             Show Decktape console output
+    -- [Decktape opts]    Pass any Decktape options directly
 `;
 
 class BackslideCli {
@@ -89,9 +90,10 @@ class BackslideCli {
    * @param {string[]} files The markdown files.
    * @param {number} wait Wait time between slides in ms.
    * @param {boolean} verbose Show decktape console output.
+   * @param {boolean} options Additional Decktape options.
    * @return Promise<string[]> The exported files.
    */
-  pdf(output, decktape, files, wait, handouts, verbose) {
+  pdf(output, decktape, files, wait, handouts, verbose, options) {
     let count = 0;
     let progress;
     const exportedFiles = [];
@@ -113,7 +115,8 @@ class BackslideCli {
               require.resolve('decktape'),
               `-p ${wait}`,
               `file://${path.resolve(file)}`,
-              path.join(output, exportedFile)
+              path.join(output, exportedFile),
+              ...options
             ].join(' '), {
               stdio: verbose ? [1, 2] : [2]
             }
@@ -452,7 +455,8 @@ class BackslideCli {
           this._args.decktape || '.',
           _.slice(1), this._args.wait || 1000,
           this._args.handouts,
-          this._args.verbose);
+          this._args.verbose,
+          this._args['--']);
       default:
         this._help();
     }
@@ -473,7 +477,8 @@ new BackslideCli(require('minimist')(process.argv.slice(2), {
     l: 'no-inline',
     t: 'template',
     h: 'handouts'
-  }
+  },
+  '--': true
 }));
 
 exports = BackslideCli;

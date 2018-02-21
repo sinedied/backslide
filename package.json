@@ -24,7 +24,7 @@
     "bs": "./bin/bs"
   },
   "scripts": {
-    "init": "cp -Rf starter/template template",
+    "init": "cp -r --preserve=mode starter/template template",
     "start": "npm run init -s && node ./bin/bs serve example",
     "clean": "rm -rf .tmp dist template",
     "test": "eslint *.js",
@@ -33,9 +33,9 @@
     "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
   },
   "dependencies": {
-    "browser-sync": "^2.18.13",
-    "decktape": "^2.6.1",
-    "fs-extra": "^4.0.3",
+    "browser-sync": "^2.23.5",
+    "decktape": "^2.7.0",
+    "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "inliner": "^1.13.1",
     "minimist": "^1.2.0",
@@ -45,7 +45,7 @@
     "update-notifier": "^2.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.13.1",
+    "eslint": "^4.15.0",
     "gh-pages": "^1.1.0"
   },
   "engines": {

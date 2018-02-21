@@ -2,7 +2,12 @@ language: node_js
 node_js:
   - 'node'
   - '7'
-
+dist: trusty
+addons:
+  apt:
+    packages:
+      # This is required to run new chrome on old trusty
+      - libnss3
 branches:
   only:
     - 'master'
@@ -20,5 +25,5 @@ script:
   - cd travis
   - bs init
   - bs export
-  - bs pdf
+  - bs pdf --verbose -- --no-sandbox
   
