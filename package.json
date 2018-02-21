@@ -24,7 +24,7 @@
     "bs": "./bin/bs"
   },
   "scripts": {
-    "init": "cp -r --preserve=mode starter/template template",
+    "init": "cp -Rf starter/template template",
     "start": "npm run init -s && node ./bin/bs serve example",
     "clean": "rm -rf .tmp dist template",
     "test": "eslint *.js",
@@ -45,10 +45,22 @@
     "update-notifier": "^2.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.15.0",
+    "eslint": "^4.18.1",
+    "eslint-config-xo-space": "^0.18.0",
     "gh-pages": "^1.1.0"
   },
   "engines": {
     "node": ">=7.6.0"
+  },
+  "eslintConfig": {
+    "extends": "xo-space/esnext",
+    "rules": {
+      "one-var": [
+        "error",
+        {
+          "initialized": "never"
+        }
+      ]
+    }
   }
 }
