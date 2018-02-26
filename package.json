@@ -27,7 +27,7 @@
     "init": "cp -Rf starter/template template",
     "start": "npm run init -s && node ./bin/bs serve example",
     "clean": "rm -rf .tmp dist template",
-    "test": "eslint *.js",
+    "test": "eslint \"*.js\" \"lib/**/*.js\"",
     "export": "npm run init -s && node ./bin/bs export example",
     "deploy": "npm run clean && npm run export && gh-pages -d dist",
     "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
@@ -37,7 +37,9 @@
     "decktape": "^2.7.0",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
+    "got": "^8.2.0",
     "inliner": "^1.13.1",
+    "mime": "^2.2.0",
     "minimist": "^1.2.0",
     "mustache": "^2.3.0",
     "node-sass": "^4.7.2",

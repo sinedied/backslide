@@ -2,10 +2,11 @@ const pkg = require('./package.json');
 const updateNotifier = require('update-notifier');
 const minimist = require('minimist');
 const util = require('./lib/util');
-const init = require('./lib/init');
-const serve = require('./lib/serve');
-const exportHtml = require('./lib/export');
-const pdf = require('./lib/pdf');
+const init = require('./lib/commands/init');
+const serve = require('./lib/commands/serve');
+const exportHtml = require('./lib/commands/export');
+const pdf = require('./lib/commands/pdf');
+const transform = require('./lib/commands/transform');
 
 const help =
 `${pkg.name} ${pkg.version}
@@ -14,12 +15,13 @@ Usage: bs [init|serve|export|pdf] [options]
 Commands:
   i, init                 Init new presentation in current directory
     -t, --template <dir>  Use custom template directory
-    --force               Overwrite existing files        
+    --force               Overwrite existing files
   e, export [files]       Export markdown files to html slides [default: *.md]
     -o, --output          Output directory                     [default: dist]
     -r, --strip-notes     Strip presenter notes
     -h, --handouts        Strip slide fragments for handouts
-    -l, --no-inline       Do not inline external resources        
+    -l, --no-inline       Do not inline external resources
+    -i, --online          Export for online hosting
   s, serve [dir]          Start dev server for specified dir.  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start
@@ -30,6 +32,7 @@ Commands:
     --verbose             Show Decktape console output
     -- [Decktape opts]    Pass any Decktape options directly
   t, transform [files]    Performs transformations on your slides
+    -o, --output          Output directory (default to in-place)
     -x, --extract-images  Extract embedded images
     -e, --embed-images    Embed external images
     -r, --strip-notes     Strip presenter notes
@@ -39,9 +42,26 @@ Commands:
 class Backslide {
   constructor(args) {
     this._args = minimist(args, {
-      boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'handouts', 'no-inline'],
-      string: ['output', 'decktape', 'template'],
-      number: ['port', 'wait'],
+      boolean: [
+        'verbose',
+        'force',
+        'skip-open',
+        'strip-notes',
+        'handouts',
+        'no-inline',
+        'extract-images',
+        'embed-images',
+        'online'
+      ],
+      string: [
+        'output',
+        'decktape',
+        'template'
+      ],
+      number: [
+        'port',
+        'wait'
+      ],
       alias: {
         o: 'output',
         p: 'port',
@@ -51,7 +71,10 @@ class Backslide {
         r: 'strip-notes',
         l: 'no-inline',
         t: 'template',
-        h: 'handouts'
+        h: 'handouts',
+        i: 'online',
+        e: 'embed-images',
+        x: 'extract-images'
       },
       '--': true
     });
@@ -76,7 +99,7 @@ class Backslide {
           {
             stripNotes: this._args['strip-notes'],
             stripFragments: this._args.handouts,
-            fixRelativePath: true,
+            fixRelativePath: !this._args.online,
             inline: !this._args['no-inline']
           }
         );
@@ -91,6 +114,18 @@ class Backslide {
             verbose: this._args.verbose,
             inline: !this._args['no-inline'],
             decktapeOptions: this._args['--']
+          }
+        );
+      case 't':
+      case 'transform':
+        return transform(
+          this._args.output,
+          _.slice(1),
+          {
+            stripNotes: this._args['strip-notes'],
+            stripFragments: this._args.handouts,
+            extractImages: this._args['extract-images'] ? 'images' : null,
+            embedImages: this._args['embed-images']
           }
         );
       default:

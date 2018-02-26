@@ -1,6 +1,7 @@
 .tmp/
 test/
 dist/
+pdf/
 example/
 template/
 node_modules/
