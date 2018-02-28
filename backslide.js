@@ -22,7 +22,7 @@ Commands:
     -h, --handouts        Strip slide fragments for handouts
     -l, --no-inline       Do not inline external resources
     -i, --online          Export for online hosting
-  s, serve [dir]          Start dev server for specified dir.  [default: .]
+  s, serve [dir]          Start desv server for specified dir.  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start
   p, pdf [files]          Export markdown files to pdf         [default: *.md]
@@ -32,7 +32,7 @@ Commands:
     --verbose             Show Decktape console output
     -- [Decktape opts]    Pass any Decktape options directly
   t, transform [files]    Performs transformations on your slides
-    -o, --output          Output directory (default to in-place)
+    -o, --output          Output directory                     [default: dist]
     -x, --extract-images  Extract embedded images
     -e, --embed-images    Embed external images
     -r, --strip-notes     Strip presenter notes
@@ -119,7 +119,7 @@ class Backslide {
       case 't':
       case 'transform':
         return transform(
-          this._args.output,
+          this._args.output || 'dist',
           _.slice(1),
           {
             stripNotes: this._args['strip-notes'],
