@@ -22,7 +22,7 @@ Commands:
     -h, --handouts        Strip slide fragments for handouts
     -l, --no-inline       Do not inline external resources
     -i, --online          Export for online hosting
-  s, serve [dir]          Start desv server for specified dir.  [default: .]
+  s, serve [dir]          Start dev server for specified dir.  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start
   p, pdf [files]          Export markdown files to pdf         [default: *.md]
