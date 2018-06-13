@@ -1,3 +1,9 @@
+# 3.0.0
+- Complete refatoring of the code
+- Fixed </script> tags breaking export
+- Added transform commands
+- Misc fixes I don't remember :-)
+
 # 2.3.0
 - Inline local images in markdown (PR https://github.com/sinedied/backslide/pull/16)
 - Fixed relative paths also in html template and sass styles (PR https://github.com/sinedied/backslide/pull/16)
