@@ -1,0 +1,30 @@
+{
+  "name": "basilic",
+  "version": "0.0.1",
+  "description": "Simple & extensible base layer to make your own CLI",
+  "main": "index.js",
+  "bin": {
+    "cli": "./bin/cli"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "command",
+    "tool",
+    "extensible",
+    "helper"
+  ],
+  "author": "Yohan Lasorsa",
+  "license": "MIT",
+  "engines": {
+    "node": ">=7.6.0"
+  },
+  "dependencies": {
+    "conf": "^2.0.0",
+    "fs-extra": "^6.0.1",
+    "minimist": "^1.2.0",
+    "update-notifier": "^2.5.0"
+  }
+}

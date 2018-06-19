@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+const CliTest = require('../index');
+const cli = new CliTest(process.argv.slice(2));
+cli.run();

@@ -2,7 +2,7 @@
  * Creates a new CLI instance.
  * @param {Object} args Arguments that will passed to each command for matching and execution.
  * @param {Array} commands List of commands that makes up this CLI.
- * @param {string|Function} help Help message to display when no command match. If a function is specified, the CLI
+ * @param {String|Function} help Help message to display when no command match. If a function is specified, the CLI
  *   instance will be passed as an argument, and it should return the help string.
  *
  * A command is an object with this shape:
@@ -11,10 +11,11 @@
  *   name: String,    // name of the command, must be set for matchable command and will be used for hooks
  *   help: String,    // help displayed for this command when no command match
  *   hooks: String[]  // hooks on which the command will be run, in the form <pre|post><command_name>
- *   match: (args) => Object,   // return context data if the command match or undefined
- *   run: (args, context) => {} // execute the command for the specified context
+ *   match: (args) => Promise|Object,          // return context data if the command match or undefined
+ *   run: (args, context) => Promise|undefined // execute the command for the specified context
  * }
  * ```
+ * Note that `match` and `run` functions can return a promise if asynchronous work is needed.
  *
  * A context is an object with this shape:
  * ```js
@@ -49,14 +50,11 @@ class Cli {
     this.help = help;
   }
 
-  run() {
+  async run() {
     let data;
-    const command = this.commands.find(c => {
-      if (c.match) {
-        data = c.match(this.args);
-        return data !== undefined;
-      }
-      return false;
+    const command = this.commands.find(async c => {
+      data = c.math ? await c.match(this.args) : undefined;
+      return data !== undefined;
     });
     if (!command) {
       console.log(this.help);
@@ -66,19 +64,19 @@ class Cli {
       Cli.exit('Error, matched command has no name!');
     }
     const prehook = 'pre' + command.name;
-    this.commands.forEach(c => {
+    this.commands.forEach(async c => {
       if (c.hooks && c.hooks.includes(prehook) && c.run) {
-        c.run(this.args, {stage: prehook, data});
+        await c.run(this.args, {stage: prehook, data});
       }
     });
     if (!command.run) {
       Cli.exit('Error, matched command has run function!');
     }
-    command.run(this.args, {stage: command.name, data});
+    await command.run(this.args, {stage: command.name, data});
     const posthook = 'post' + command.name;
-    this.commands.forEach(c => {
+    this.commands.forEach(async c => {
       if (c.hooks && c.hooks.includes(posthook) && c.run) {
-        c.run(this.args, {stage: posthook, data});
+        await c.run(this.args, {stage: posthook, data});
       }
     });
   }
@@ -90,3 +88,5 @@ class Cli {
 }
 
 module.exports = Cli;
+
+// TODO: test CLI + async commands
