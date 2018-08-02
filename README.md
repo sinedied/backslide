@@ -1,4 +1,4 @@
-# backslide
+# :sweat_drops: backslide
 
 [![NPM version](https://img.shields.io/npm/v/backslide.svg)](https://www.npmjs.com/package/backslide)
 ![Node version](https://img.shields.io/node/v/backslide.svg)
