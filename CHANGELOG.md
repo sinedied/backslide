@@ -1,3 +1,7 @@
+# 2.3.1
+- Fixed export issue (https://github.com/sinedied/backslide/issues/37)
+- Updated dependencies
+
 # 2.3.0
 - Inline local images in markdown (PR https://github.com/sinedied/backslide/pull/16)
 - Fixed relative paths also in html template and sass styles (PR https://github.com/sinedied/backslide/pull/16)
