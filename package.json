@@ -33,20 +33,21 @@
     "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
   },
   "dependencies": {
-    "browser-sync": "^2.23.5",
-    "decktape": "^2.7.0",
-    "fs-extra": "^5.0.0",
+    "browser-sync": "^2.24.6",
+    "decktape": "^2.8.7",
+    "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "inliner": "^1.13.1",
+    "mime": "^2.3.1",
     "minimist": "^1.2.0",
-    "mustache": "^2.3.0",
-    "node-sass": "^4.7.2",
+    "mustache": "^2.3.2",
+    "node-sass": "^4.9.3",
     "progress": "^2.0.0",
-    "update-notifier": "^2.3.0"
+    "update-notifier": "^2.5.0"
   },
   "devDependencies": {
-    "eslint": "^4.15.0",
-    "gh-pages": "^1.1.0"
+    "eslint": "^5.4.0",
+    "gh-pages": "^1.2.0"
   },
   "engines": {
     "node": ">=7.6.0"

@@ -319,7 +319,7 @@ class BackslideCli {
         if (!cache[url]) {
           try {              
             const b = fs.readFileSync(url);
-            cache[url] = `data:${mime.lookup(match[2])};base64,${b.toString('base64')}`;
+            cache[url] = `data:${mime.getType()(match[2])};base64,${b.toString('base64')}`;
           } catch (e) {
             console.error(e.message);
           }
