@@ -1,3 +1,6 @@
+# 2.3.2
+- Fixed export (working this time) (PR https://github.com/sinedied/backslide/pull/42)
+
 # 2.3.1
 - Fixed export issue (https://github.com/sinedied/backslide/issues/37)
 - Updated dependencies
