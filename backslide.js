@@ -112,10 +112,10 @@ class BackslideCli {
           exportedFiles.push(exportedFile);
           child.execSync([
               'node',
-              require.resolve('decktape'),
+              `"${require.resolve('decktape')}"`,
               `-p ${wait}`,
               `file://${path.resolve(file)}`,
-              path.join(output, exportedFile),
+              `"${path.join(output, exportedFile)}"`,
               ...options
             ].join(' '), {
               stdio: verbose ? [1, 2] : [2]
