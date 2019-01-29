@@ -251,7 +251,7 @@ class BackslideCli {
   }
 
   _splitMd(md) {
-    var v = JSON.stringify(md);
+    const v = JSON.stringify(md);
     return v.split(/(?!<)\/(?=script>)/gm).join('/" + "');
   }
 
