@@ -250,6 +250,11 @@ class BackslideCli {
       });
   }
 
+  _splitMd(md) {
+    var v = JSON.stringify(md);
+    return v.split(/(?!<)\/(?=script>)/gm).join('/" + "');
+  }
+
   _exportFile(dir, file, stripNotes, stripFragments, fixRelativePath, inline) {
     let html, md;
     const filename = path.basename(file, path.extname(file)) + '.html';
@@ -285,7 +290,7 @@ class BackslideCli {
           css = this._makePathRelativeTo(css.toString(), TemplateDir, [CssRelativeURLRegExp]);
         }
         return Mustache.render(html, {
-          source: `source: ${JSON.stringify(md)}`,
+          source: `source: ${this._splitMd(md)}`,
           style: `<style>\n${css}\n</style>`,
           title: this._getTitle(md) || path.basename(file, path.extname(file))
         })
