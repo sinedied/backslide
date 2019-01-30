@@ -285,7 +285,7 @@ class BackslideCli {
           css = this._makePathRelativeTo(css.toString(), TemplateDir, [CssRelativeURLRegExp]);
         }
         return Mustache.render(html, {
-          source: `source: ${JSON.stringify(md)}`,
+          source: `source: ${this._escapeScript(JSON.stringify(md))}`,
           style: `<style>\n${css}\n</style>`,
           title: this._getTitle(md) || path.basename(file, path.extname(file))
         })
@@ -419,6 +419,10 @@ class BackslideCli {
   _getTitle(md) {
     const match = TitleRegExp.exec(md);
     return match ? match[1]: null;
+  }
+
+  _escapeScript(md) {
+    return md.replace('</script>', '<\\/script>');
   }
 
   _help() {
