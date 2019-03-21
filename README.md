@@ -98,7 +98,7 @@ If you have images, it's best to include them as [data-uri](https://css-tricks.c
 
 If you have set a `title` variable in your document (like this `title: My Awesome Presentation`), it will be used as the HTML document title, otherwise the file name will be used.
 
-> Note: you can strip presenter notes from the exported HTML using the `--strip-notes` option, and remove slide fragements with the `--handouts` option.
+> Note: you can strip presenter notes from the exported HTML using the `--strip-notes` option, and remove slide fragments with the `--handouts` option.
 
 ### Converting your slides to PDF
 
