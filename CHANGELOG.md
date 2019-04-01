@@ -1,3 +1,6 @@
+# 2.3.4
+- Updated dependencies to fix vulnerability
+
 # 2.3.3
 - Fixed error with spaces in path (PR https://github.com/sinedied/backslide/pull/48)
 - Fixed issue with `</script>` tags no being escaped (https://github.com/sinedied/backslide/issues/51)
