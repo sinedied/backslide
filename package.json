@@ -26,15 +26,16 @@
   "scripts": {
     "init": "cp -R starter/template template",
     "start": "npm run init -s && node ./bin/bs serve example",
-    "clean": "rm -rf .tmp dist template",
+    "clean": "rm -rf .tmp dist pdf template",
     "test": "eslint *.js",
     "export": "npm run init -s && node ./bin/bs export example",
+    "pdf": "npm run init -s && node ./bin/bs pdf example",
     "deploy": "npm run clean && npm run export && gh-pages -d dist",
     "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
   },
   "dependencies": {
     "browser-sync": "^2.26.3",
-    "decktape": "^2.9.1",
+    "decktape": "^2.9.2",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.3",
     "inliner": "^1.13.1",
@@ -46,7 +47,7 @@
     "update-notifier": "^2.5.0"
   },
   "devDependencies": {
-    "eslint": "^5.12.1",
+    "eslint": "^5.16.0",
     "gh-pages": "^2.0.1"
   },
   "engines": {
