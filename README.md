@@ -4,6 +4,7 @@
 ![Node version](https://img.shields.io/node/v/backslide.svg)
 [![Build status](https://img.shields.io/travis/sinedied/backslide/master.svg)](https://travis-ci.org/sinedied/backslide)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsinedied%2Fbackslide.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsinedied%2Fbackslide?ref=badge_shield)
 
 > CLI tool for making HTML presentations with [Remark.js](https://github.com/gnab/remark) using [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 
@@ -107,3 +108,7 @@ Use `bs pdf` to export your all `.md` files as PDF presentations.
 > Note: you can remove slide fragements with the `--handouts` option.
 
 This feature is based on [Decktape](https://github.com/astefanutti/decktape/).
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsinedied%2Fbackslide.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsinedied%2Fbackslide?ref=badge_large)
