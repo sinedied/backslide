@@ -21,10 +21,12 @@ See an example presentation [here](https://sinedied.github.io/backslide)
 
 ## Installation
 
-### NPM
+### NPM/Yarn
 
 ```sh
 npm install -g backslide
+# or
+yarn add backslide
 ```
 
 ### Docker
