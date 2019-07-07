@@ -68,8 +68,8 @@ class: middle
 $ mkdir my-presentation && cd my-presentation
 # install globally with NPM
 $ npm install -g backslide
-# or use yarn locally
-$ yarn add backslide
+# or Yarn
+$ yarn global add backslide
 $ bs init
 $ bs serve
 ```
