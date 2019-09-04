@@ -114,7 +114,7 @@ class BackslideCli {
               'node',
               `"${require.resolve('decktape')}"`,
               `-p ${wait}`,
-              `file://${path.resolve(file)}`,
+              `"file://${path.resolve(file)}"`,
               `"${path.join(output, exportedFile)}"`,
               ...options
             ].join(' '), {
