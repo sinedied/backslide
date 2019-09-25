@@ -61,6 +61,7 @@ Commands:
     -o, --output          Output directory                     [default: pdf]
     -w, --wait            Wait time between slides in ms       [default: 1000]
     --verbose             Show Decktape console output
+    -- [Decktape opts]    Pass any Decktape options directly
 ```
 
 ### Creating a new presentation
