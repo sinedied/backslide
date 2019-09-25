@@ -1,3 +1,8 @@
+# 2.3.5
+- Fixed pdf export error with spaces in path (PR https://github.com/sinedied/backslide/pull/59)
+- Fixed doc (PR https://github.com/sinedied/backslide/pull/60)
+- Updated dependencies
+
 # 2.3.4
 - Updated dependencies to fix vulnerability
 
