@@ -422,7 +422,7 @@ class BackslideCli {
   }
 
   _escapeScript(md) {
-    return md.replace('</script>', '<\\/script>');
+    return md.replace(new RegExp('</script>', 'g'), '<\\/script>');
   }
 
   _help() {
