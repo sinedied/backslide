@@ -1,3 +1,6 @@
+# 2.3.6
+- Fixes a pdf export and XSS vulnerability when using multiple script tags (PR https://github.com/sinedied/backslide/pull/62)
+
 # 2.3.5
 - Fixed pdf export error with spaces in path (PR https://github.com/sinedied/backslide/pull/59)
 - Fixed doc (PR https://github.com/sinedied/backslide/pull/60)
