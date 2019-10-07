@@ -1,6 +1,6 @@
 {
   "name": "backslide",
-  "version": "2.3.6",
+  "version": "2.3.7",
   "description": "CLI tool for making HTML presentations with Remark.js using Markdown",
   "repository": "sinedied/backslide",
   "keywords": [
@@ -47,7 +47,7 @@
     "update-notifier": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^6.4.0",
+    "eslint": "^6.5.1",
     "gh-pages": "^2.1.1"
   },
   "engines": {

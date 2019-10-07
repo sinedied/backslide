@@ -1,3 +1,6 @@
+# 2.3.7
+- Republish to fix #63
+
 # 2.3.6
 - Fixes a pdf export and XSS vulnerability when using multiple script tags (PR https://github.com/sinedied/backslide/pull/62)
 
