@@ -151,7 +151,11 @@ blockquote {
 .huge { font-size: 2em; }
 .big { font-size: 1.5em; }
 .small { font-size: .8em; }
+.bar { text-decoration: line-through; }
+.dark { color: $dark; }
 .dark-bg { background-color: $dark; }
+.light { color: $light; }
+.light-bg { background-color: $light; }
 .alt-bg { background-color: $secondary; };
 
 // Simple 12-columns grid system
