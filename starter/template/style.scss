@@ -6,7 +6,7 @@ $secondary        : #009688;
 $tertiary         : #757575;
 $light            : #FFF;
 $dark             : #333;
-$text-dark        : #212121; 
+$text-dark        : #212121;
 $text-light       : $light;
 $code-background  : #F8F8F8;
 $overlay          : transparentize(#000, .5);
@@ -145,13 +145,22 @@ blockquote {
 .center { text-align: center; }
 .justify { text-align: justify; }
 .primary { color: $primary; }
+.primary-bg { background-color: $primary; }
+.secondary { color: $secondary; }
+.secondary-bg { background-color: $secondary; }
+.tertiary { color: $tertiary; }
+.tertiary-bg { background-color: $tertiary; }
 .alt { color: $secondary; };
 .em { color: $tertiary; };
 .thin { font-weight: 200; }
 .huge { font-size: 2em; }
 .big { font-size: 1.5em; }
 .small { font-size: .8em; }
+.strike { text-decoration: line-through; }
+.dark { color: $dark; }
 .dark-bg { background-color: $dark; }
+.light { color: $light; }
+.light-bg { background-color: $light; }
 .alt-bg { background-color: $secondary; };
 
 // Simple 12-columns grid system
