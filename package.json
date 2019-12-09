@@ -38,12 +38,13 @@
     "decktape": "^2.9.3",
     "fs-extra": "^8.1.0",
     "glob": "^7.1.4",
-    "inliner": "^1.13.1",
+    "web-resource-inliner": "^4.3.4",
     "mime": "^2.4.4",
     "minimist": "^1.2.0",
     "mustache": "^3.1.0",
     "node-sass": "^4.12.0",
     "progress": "^2.0.3",
+    "sass": "^1.23.7",
     "update-notifier": "^3.0.1"
   },
   "devDependencies": {
