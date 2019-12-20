@@ -52,5 +52,10 @@
   },
   "engines": {
     "node": ">=7.6.0"
-  }
+  },
+  "files": [
+    "bin",
+    "starter",
+    "backslide.js"
+  ]
 }

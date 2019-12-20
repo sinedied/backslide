@@ -1,9 +1,0 @@
-.tmp/
-.idea/
-test/
-dist/
-example/
-template/
-.eslintrc.json
-.gitignore
-.travis.yml
