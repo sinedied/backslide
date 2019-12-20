@@ -12,6 +12,7 @@ const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
 const mime = require('mime');
 const updateNotifier = require('update-notifier');
+const commandExists = require('command-exists');
 
 const TempDir = '.tmp';
 const StarterDir = 'starter';
@@ -86,17 +87,21 @@ class BackslideCli {
   /**
    * Exports markdown files as pdf using an existing Decktape install.
    * @param {string} output The ouput dir.
-   * @param {string} decktape The path to the decktape directory.
    * @param {string[]} files The markdown files.
    * @param {number} wait Wait time between slides in ms.
    * @param {boolean} verbose Show decktape console output.
    * @param {boolean} options Additional Decktape options.
    * @return Promise<string[]> The exported files.
    */
-  pdf(output, decktape, files, wait, handouts, verbose, options) {
+  pdf(output, files, wait, handouts, verbose, options) {
     let count = 0;
     let progress;
     const exportedFiles = [];
+
+    if (!commandExists.sync('decktape')) {
+      this._exit('For pdf export to work, Decktape must be installed.\nUse: npm i -g decktape\n');
+    }
+    
     return Promise.resolve()
       .then(() => {
         files = this._getFiles(files);
@@ -111,8 +116,7 @@ class BackslideCli {
           const exportedFile = path.basename(file, path.extname(file)) + '.pdf';
           exportedFiles.push(exportedFile);
           child.execSync([
-              'node',
-              `"${require.resolve('decktape')}"`,
+              `decktape`,
               `-p ${wait}`,
               `"file://${path.resolve(file)}"`,
               `"${path.join(output, exportedFile)}"`,
@@ -452,7 +456,6 @@ class BackslideCli {
       case 'p':
       case 'pdf':
         return this.pdf(this._args.output || 'pdf',
-          this._args.decktape || '.',
           _.slice(1), this._args.wait || 1000,
           this._args.handouts,
           this._args.verbose,
@@ -465,12 +468,11 @@ class BackslideCli {
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
   boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'handouts', 'no-inline'],
-  string: ['output', 'decktape', 'template'],
+  string: ['output', 'template'],
   number: ['port', 'wait'],
   alias: {
     o: 'output',
     p: 'port',
-    d: 'decktape',
     w: 'wait',
     s: 'skip-open',
     r: 'strip-notes',

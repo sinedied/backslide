@@ -110,3 +110,9 @@ Use `bs pdf` to export your all `.md` files as PDF presentations.
 > Note: you can remove slide fragements with the `--handouts` option.
 
 This feature is based on [Decktape](https://github.com/astefanutti/decktape/).
+
+For this feature to work, you need to install [Decktape](https://github.com/astefanutti/decktape/):
+
+```sh
+npm install -g decktape
+```
