@@ -1,3 +1,8 @@
+# 2.4.0
+- Changed to `web-resource-inliner` instead of `inliner` (PR https://github.com/sinedied/backslide/pull/71)
+- Made `decktape` an optional external dependency, fixed install on Node > 12 (#70)
+- Updated dependencies to fix vulnerabilities
+
 # 2.3.7
 - Republish to fix #63
 
