@@ -7,7 +7,7 @@ const fs = require('fs-extra')
 const glob = require('glob');
 const Mustache = require('mustache');
 const sass = require('node-sass');
-const Inliner = require('inliner');
+const Inliner = require('web-resource-inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
 const mime = require('mime');
@@ -334,13 +334,9 @@ class BackslideCli {
   _inline(basedir, html) {
     return new Promise((resolve, reject) => {
       process.chdir(basedir);
-      new Inliner({
-        source: html,
-        inlinemin: true,
-        // Must be disabled because it's buggy, see https://github.com/remy/inliner/issues/63
-        collapseWhitespace: false
-      },
-      (err, html) => err ? reject(err) : resolve(html));
+      Inliner.html({
+        fileContent: html
+      }, (err, html) => err ? reject(err) : resolve(html));
     });
   }
 
