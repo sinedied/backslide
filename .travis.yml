@@ -25,5 +25,5 @@ script:
   - cd travis
   - bs init
   - bs export
-  - bs pdf --verbose -- --no-sandbox
+  # - bs pdf --verbose -- --no-sandbox
   
