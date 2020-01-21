@@ -285,6 +285,11 @@ class BackslideCli {
         return results[2];
       })
       .then(css => {
+        if (inline) {
+          return this._inlineCss(dirname, css);
+        }
+      })
+      .then(css => {
         if (fixRelativePath && !inline) {
           css = this._makePathRelativeTo(css.toString(), TemplateDir, [CssRelativeURLRegExp]);
         }
@@ -333,6 +338,15 @@ class BackslideCli {
       }
     });
     return contents;
+  }
+
+  _inlineCss(basedir, css) {
+    return new Promise((resolve, reject) => {
+      Inliner.css({
+        fileContent: css.toString(),
+        relativeTo: basedir || '',
+      }, (err, css) => err ? reject(err) : resolve(Buffer.from(css)));
+    })
   }
 
   _inline(basedir, html) {
