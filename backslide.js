@@ -286,7 +286,7 @@ class BackslideCli {
       })
       .then(css => {
         if (inline) {
-          return this._inlineCss(dirname, css);
+          return this._inlineCss(dirname, dir, css);
         }
       })
       .then(css => {
@@ -340,11 +340,12 @@ class BackslideCli {
     return contents;
   }
 
-  _inlineCss(basedir, css) {
+  _inlineCss(basedir, targetdir, css) {
     return new Promise((resolve, reject) => {
       Inliner.css({
         fileContent: css.toString(),
-        relativeTo: basedir || '',
+        relativeTo: targetdir,
+        rebaseRelativeTo: path.relative(targetdir, basedir)
       }, (err, css) => err ? reject(err) : resolve(Buffer.from(css)));
     })
   }
