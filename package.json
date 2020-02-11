@@ -40,15 +40,15 @@
     "glob": "^7.1.6",
     "mime": "^2.4.4",
     "minimist": "^1.2.0",
-    "mustache": "^3.2.0",
-    "node-sass": "^4.13.0",
+    "mustache": "^4.0.0",
+    "node-sass": "^4.13.1",
     "progress": "^2.0.3",
     "update-notifier": "^4.0.0",
     "web-resource-inliner": "^4.3.4"
   },
   "devDependencies": {
-    "eslint": "^6.7.2",
-    "gh-pages": "^2.1.1"
+    "eslint": "^6.8.0",
+    "gh-pages": "^2.2.0"
   },
   "engines": {
     "node": ">=7.6.0"
