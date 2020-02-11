@@ -4,7 +4,7 @@ const pkg = require('./package.json');
 const child = require('child_process');
 const path = require('path');
 const fs = require('fs-extra')
-const glob = require('glob');
+const globby = require('globby');
 const Mustache = require('mustache');
 const sass = require('node-sass');
 const Inliner = require('web-resource-inliner');
@@ -43,7 +43,7 @@ Commands:
     -r, --strip-notes     Strip presenter notes                     
     -h, --handouts        Strip slide fragments for handouts
     -l, --no-inline       Do not inline external resources          
-  s, serve [dir]          Start dev server for specified dir.  [default: .]
+  s, serve [dirs]         Start dev server for specified dirs  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start              
   p, pdf [files]          Export markdown files to pdf         [default: *.md]
@@ -134,19 +134,19 @@ class BackslideCli {
 
   /**
    * Starts a development server with live reload.
-   * @param {string} dir The directory containing markdown files.
+   * @param {string} dirs The directories containing markdown files.
    * @param {number} port The port number to listen on.
    * @param {boolean} open True to open default browser.
    */
-  serve(dir, port, open) {
-    dir = dir || '.';
+  serve(dirs, port, open) {
+    dirs = dirs.length > 0 ? dirs : ['.'];
     let files;
     let count = 0;
     const promise = Promise.resolve();
     const nextFile = () => promise.then(() => {
       if (count < files.length) {
         const file = files[count++];
-        return this._serveFile(TempDir, file)
+        return this._serveFile(file)
           .then(nextFile);
       }
     });
@@ -154,10 +154,10 @@ class BackslideCli {
       .then(() => {
         fs.removeSync(TempDir);
         this._checkTemplate();
-        if (!this._isDirectory(dir)) {
-          this._exit(`${dir} is not a directory`);
+        if (!this._isDirectory(dirs[0])) {
+          this._exit(`${dirs[0]} is not a directory`);
         }
-        files = this._getFiles([dir]);
+        files = this._getFiles(dirs, true);
       })
       .then(() => this._sass())
       .then(css => {
@@ -180,7 +180,7 @@ class BackslideCli {
         );
       })
       .then(() => nextFile())
-      .then(() => this._startServer(dir, port, open))
+      .then(() => this._startServer(dirs[0], port, open))
       .catch(err => this._exit(`\nCannot start server: ${err && err.message || err}`));
   }
 
@@ -242,7 +242,7 @@ class BackslideCli {
     });
   }
 
-  _serveFile(dir, file) {
+  _serveFile(file) {
     return fs.readFile(path.join(TemplateDir, HtmlTemplate))
       .then(buffer => Mustache.render(buffer.toString(), {
         source: `sourceUrl: '${path.basename(file)}'`,
@@ -364,19 +364,25 @@ class BackslideCli {
     }
   }
 
-  _getFiles(files) {
-    if (!files.length || (files.length === 1 && this._isDirectory(files[0]))) {
-      const pattern = this._normalizePattern(files[0] ? files[0] : '');
-      try {
-        files = glob.sync(path.join(pattern, '*.md'));
-      } catch(err) {
-        this._exit(err && err.message || err);
-      }
+  _getFiles(files, expandDirs = false) {
+    if (!files.length || files.length === 1 && this._isDirectory(files[0]) || expandDirs) {
+      files = this._getFilesFromDirs(files);
     }
     if (files.length === 0) {
       this._exit('No markdown files found');
     }
     return files;
+  }
+
+  _getFilesFromDirs(files) {
+    const patterns = files.filter(this._isDirectory)
+      .map(dir => this._normalizePattern(dir ? dir : ''))
+      .map(dir => path.join(dir, '*.md'));
+    try {
+      return globby.sync(patterns);
+    } catch(err) {
+      this._exit(err && err.message || err);
+    }
   }
 
   _normalizePattern(pattern) {
@@ -444,7 +450,7 @@ class BackslideCli {
         return this.init(this._args.template || process.env.BACKSLIDE_TEMPLATE_DIR, this._args.force);
       case 's':
       case 'serve':
-        return this.serve(_[1], this._args.port || 4100, !this._args['skip-open']);
+        return this.serve(_.slice(1), this._args.port || 4100, !this._args['skip-open']);
       case 'e':
       case 'export':
         return this.export(this._args.output || 'dist',
@@ -456,7 +462,8 @@ class BackslideCli {
       case 'p':
       case 'pdf':
         return this.pdf(this._args.output || 'pdf',
-          _.slice(1), this._args.wait || 1000,
+          _.slice(1),
+          this._args.wait || 1000,
           this._args.handouts,
           this._args.verbose,
           this._args['--']);

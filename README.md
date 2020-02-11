@@ -53,7 +53,7 @@ Commands:
     -r, --strip-notes     Strip presenter notes                     
     -h, --handouts        Strip slide fragments for handouts
     -l, --no-inline       Do not inline external resources          
-  s, serve [dir]          Start dev server for specified dir.  [default: .]
+  s, serve [dirs]         Start dev server for specified dirs  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start              
   p, pdf [files]          Export markdown files to pdf         [default: *.md]

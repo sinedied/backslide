@@ -37,7 +37,7 @@
     "browser-sync": "^2.26.7",
     "command-exists": "^1.2.8",
     "fs-extra": "^8.1.0",
-    "glob": "^7.1.6",
+    "globby": "^11.0.0",
     "mime": "^2.4.4",
     "minimist": "^1.2.0",
     "mustache": "^3.2.0",
