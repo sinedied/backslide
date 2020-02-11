@@ -1,3 +1,8 @@
+# 2.5.0
+- Added CSS resources inlining (PR https://github.com/sinedied/backslide/pull/74)
+- Fix CSS images with relative paths not inlined (#73)
+- Updated dependencies
+
 # 2.4.0
 - Changed to `web-resource-inliner` instead of `inliner` (PR https://github.com/sinedied/backslide/pull/71)
 - Made `decktape` an optional external dependency, fixed install on Node > 12 (#70)
