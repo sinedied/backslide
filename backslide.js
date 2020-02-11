@@ -24,10 +24,10 @@ const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const FragmentsRegExp = /(^--[^-][\s\S])/gm;
 const MdRelativeURLRegExp = /(!?\[.*?\]\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
 const HtmlRelativeURLRegExp = /(<(?:img|link|script|a)[^>]+(?:src|href)=(?:"|'))((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)("|')/gm;
-const CssRelativeURLRegExp = /(url\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^)]+)(\))/gm;
+const CssRelativeURLRegExp = /(url\("?)((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^")]+)("?\))/gm;
 const MdImagesRegExp = /(!\[.*?\]\()(file:\/\/\/.+?)((?=\)))/gm;
 const HtmlImagesRegExp = /(<img[^>]+src=(?:"|'))(file:\/\/\/.[^">]+?)("|')/gm;
-const CssImagesRegExp = /(url\()((file:\/\/)[^)]+)(\))/gm;
+const CssImagesRegExp = /(url\("?)((file:\/\/)[^")]+)("?\))/gm;
 const isWindows = /^win/.test(process.platform);
 
 const help =
@@ -285,6 +285,11 @@ class BackslideCli {
         return results[2];
       })
       .then(css => {
+        if (inline) {
+          return this._inlineCss(dirname, dir, css);
+        }
+      })
+      .then(css => {
         if (fixRelativePath && !inline) {
           css = this._makePathRelativeTo(css.toString(), TemplateDir, [CssRelativeURLRegExp]);
         }
@@ -333,6 +338,16 @@ class BackslideCli {
       }
     });
     return contents;
+  }
+
+  _inlineCss(basedir, targetdir, css) {
+    return new Promise((resolve, reject) => {
+      Inliner.css({
+        fileContent: css.toString(),
+        relativeTo: targetdir,
+        rebaseRelativeTo: path.relative(targetdir, basedir)
+      }, (err, css) => err ? reject(err) : resolve(Buffer.from(css)));
+    })
   }
 
   _inline(basedir, html) {
