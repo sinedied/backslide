@@ -297,7 +297,7 @@ class BackslideCli {
       })
       .then(css => {
         if (inline) {
-          return this._inlineCss(dirname, dir, css);
+          return this._inlineCss(path.join(dirname, TemplateDir), dir, css);
         }
         fs.outputFile(path.join(dir, 'style.css'), css);
         return css;
