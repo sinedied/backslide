@@ -19,6 +19,8 @@ const StarterDir = 'starter';
 const TemplateDir = 'template';
 const HtmlTemplate = 'index.html';
 const SassTemplate = 'style.scss';
+const WebsiteRootFile = 'index.html';
+const AssetsFolders = ['assets', 'images', 'img'];
 const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /(?:^\?\?\?$[\s\S]*?)(^---?$)/gm;
 const FragmentsRegExp = /(^--[^-][\s\S])/gm;
@@ -42,7 +44,8 @@ Commands:
     -o, --output          Output directory                     [default: dist]
     -r, --strip-notes     Strip presenter notes                     
     -h, --handouts        Strip slide fragments for handouts
-    -l, --no-inline       Do not inline external resources          
+    -l, --no-inline       Do not inline external resources
+    -b, --web             Export as website, copying assets
   s, serve [dir]          Start dev server for specified dir.  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start              
@@ -192,9 +195,10 @@ class BackslideCli {
    * @param {boolean} stripFragments True to strip presention fragments (useful for handouts).
    * @param {boolean} fixRelativePath True to fix relative image paths in markdown
    * @param {boolean} inline True to inline external resources.
+   * @param {boolean} website True to export as a website (first presentation only).
    * @return Promise<string[]> The exported files.
    */
-  export(output, files, stripNotes, stripFragments, fixRelativePaths, inline) {
+  export(output, files, stripNotes, stripFragments, fixRelativePaths, inline, website) {
     let count = 0;
     let progress;
     const exportedFiles = [];
@@ -203,7 +207,7 @@ class BackslideCli {
       if (count < files.length) {
         const file = files[count++];
         progress.render({ count: count });        
-        return this._exportFile(output, file, stripNotes, stripFragments, fixRelativePaths, inline)
+        return this._exportFile(output, file, stripNotes, stripFragments, fixRelativePaths, inline, website)
           .then(exportedFile => exportedFiles.push(exportedFile))
           .then(() => progress.tick({ count: count }))
           .then(nextFile);
@@ -212,6 +216,10 @@ class BackslideCli {
     return Promise.resolve()
       .then(() => {
         files = this._getFiles(files);
+        if (website) {
+          files = files.slice(0, 1);
+        }
+
         this._checkTemplate();
         progress = new Progress(':percent exporting file :count/:total', { total: files.length });
       })
@@ -254,11 +262,13 @@ class BackslideCli {
       });
   }
 
-  _exportFile(dir, file, stripNotes, stripFragments, fixRelativePath, inline) {
+  _exportFile(dir, file, stripNotes, stripFragments, fixRelativePath, inline, website) {
+    fixRelativePath = website ? false : fixRelativePath;
+    inline = website ? false : inline;
     let html, md;
     const filename = path.basename(file, path.extname(file)) + '.html';
     const dirname = path.dirname(path.resolve(file));
-    const exportedFile = path.join(dir, filename);
+    const exportedFile = path.join(dir, website ? WebsiteRootFile : filename);
     return Promise.all([
         fs.readFile(file),
         fs.readFile(path.join(TemplateDir, HtmlTemplate)),
@@ -272,12 +282,13 @@ class BackslideCli {
         if (stripFragments) {
           md = md.replace(FragmentsRegExp, '');
         }
-        if (fixRelativePath) {
+        if (inline && fixRelativePath) {
           md = this._makePathRelativeTo(md, dirname, [MdRelativeURLRegExp, HtmlRelativeURLRegExp, CssRelativeURLRegExp]);
         }   
         if (inline) { 
           md = this._inlineImages(md, [MdImagesRegExp, HtmlImagesRegExp, CssImagesRegExp]);
         }
+
         html = results[1].toString();
         if (fixRelativePath && !inline) {
           html = this._makePathRelativeTo(html, TemplateDir, [HtmlRelativeURLRegExp, CssRelativeURLRegExp]);
@@ -285,9 +296,7 @@ class BackslideCli {
         return results[2];
       })
       .then(css => {
-        if (inline) {
-          return this._inlineCss(dirname, dir, css);
-        }
+        return inline ? this._inlineCss(dirname, dir, css) : fs.outputFile(path.join(dir, 'style.css'), css);
       })
       .then(css => {
         if (fixRelativePath && !inline) {
@@ -295,7 +304,7 @@ class BackslideCli {
         }
         return Mustache.render(html, {
           source: `source: ${this._escapeScript(JSON.stringify(md))}`,
-          style: `<style>\n${css}\n</style>`,
+          style: website ? `<link rel="stylesheet" href="style.css">` : `<style>\n${css}\n</style>`,
           title: this._getTitle(md) || path.basename(file, path.extname(file))
         })
       })
@@ -307,8 +316,27 @@ class BackslideCli {
         process.chdir(this._pwd);
         return fs.outputFile(exportedFile, html);
       })
+      .then(() => {
+        if (website) {
+          return this._copyAssets(dir);
+        }
+      })
       .then(() => this._restoreErrorOutput())
       .then(() => exportedFile)
+  }
+
+  _copyAssets(dir) {
+    try {
+      const filterHtmlSass = file => ![HtmlTemplate, SassTemplate].some(n => file.includes(n));
+      fs.copySync(TemplateDir, dir, { filter: filterHtmlSass });
+      AssetsFolders.forEach(assetFolder => {
+        if (fs.existsSync(assetFolder)) {
+          fs.copySync(assetFolder, path.join(dir, assetFolder));
+        }
+      });
+    } catch (err) {
+      this._exit(err && err.message || err);
+    }
   }
 
   _makePathRelativeTo(contents, dir, regexps) {
@@ -466,8 +494,9 @@ class BackslideCli {
           _.slice(1),
           this._args['strip-notes'],
           this._args.handouts,
-          true,
-          !this._args['no-inline']);
+          !this._args['no-inline'],
+          !this._args['no-inline'],
+          this._args['web']);
       case 'p':
       case 'pdf':
         return this.pdf(this._args.output || 'pdf',
@@ -482,7 +511,7 @@ class BackslideCli {
 }
 
 new BackslideCli(require('minimist')(process.argv.slice(2), {
-  boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'handouts', 'no-inline'],
+  boolean: ['verbose', 'force', 'skip-open', 'strip-notes', 'handouts', 'no-inline', 'web'],
   string: ['output', 'template'],
   number: ['port', 'wait'],
   alias: {
@@ -493,7 +522,8 @@ new BackslideCli(require('minimist')(process.argv.slice(2), {
     r: 'strip-notes',
     l: 'no-inline',
     t: 'template',
-    h: 'handouts'
+    h: 'handouts',
+    b: 'web'
   },
   '--': true
 }));

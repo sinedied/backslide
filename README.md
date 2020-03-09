@@ -52,7 +52,8 @@ Commands:
     -o, --output          Output directory                     [default: dist]
     -r, --strip-notes     Strip presenter notes                     
     -h, --handouts        Strip slide fragments for handouts
-    -l, --no-inline       Do not inline external resources          
+    -l, --no-inline       Do not inline external resources
+    -b, --web             Export as website, copying assets
   s, serve [dir]          Start dev server for specified dir.  [default: .]
     -p, --port            Port number to listen on             [default: 4100]
     -s, --skip-open       Do not open browser on start              
@@ -92,7 +93,9 @@ The base theme already provides some helpful additions.
 
 The stylesheet is written in [Sass](http://sass-lang.com), but you can use plain CSS instead if you feel like it, as long as you don't change the file extension.
 
-### Exporting your slides as self-contained HTML
+### Exporting your slides
+
+#### As self-contained HTML
 
 Use `bs export` to export all your `.md` files as HTML presentations.
 
@@ -102,6 +105,12 @@ If you have images, it's best to include them as [data-uri](https://css-tricks.c
 If you have set a `title` variable in your document (like this `title: My Awesome Presentation`), it will be used as the HTML document title, otherwise the file name will be used.
 
 > Note: you can strip presenter notes from the exported HTML using the `--strip-notes` option, and remove slide fragments with the `--handouts` option.
+
+#### As a website
+
+Use `bs export --web <file>.md` to export a presentation into a static HTML website.
+
+Files within the `template` folder and from the `assets`, `images` and `img` folders will be copied to the destination folder.
 
 ### Converting your slides to PDF
 
