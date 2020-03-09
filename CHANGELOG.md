@@ -1,3 +1,7 @@
+# 2.6.0
+- Fixed crash with export using `--no-inline`
+- Added `--web` option to quickly export presentation as a static website (fix #29)
+
 # 2.5.0
 - Added CSS resources inlining (PR https://github.com/sinedied/backslide/pull/74)
 - Fix CSS images with relative paths not inlined (#73)
