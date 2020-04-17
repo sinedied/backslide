@@ -296,7 +296,11 @@ class BackslideCli {
         return results[2];
       })
       .then(css => {
-        return inline ? this._inlineCss(dirname, dir, css) : fs.outputFile(path.join(dir, 'style.css'), css);
+        if (inline) {
+          return this._inlineCss(dirname, dir, css);
+        }
+        fs.outputFile(path.join(dir, 'style.css'), css);
+        return css;
       })
       .then(css => {
         if (fixRelativePath && !inline) {
@@ -309,7 +313,7 @@ class BackslideCli {
         })
       })
       .then(html => {
-        this._suppressErrorOutput();                      
+        this._suppressErrorOutput();
         return inline ? this._inline(TemplateDir, html) : html        
       })
       .then(html => {
