@@ -1,3 +1,7 @@
+# 2.6.1
+- Fixed crash with pdf generation using `--no-inline` (PR https://github.com/sinedied/backslide/pull/81)
+- Updated dependencies
+
 # 2.6.0
 - Fixed crash with export using `--no-inline`
 - Added `--web` option to quickly export presentation as a static website (fix #29)
