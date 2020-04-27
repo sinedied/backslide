@@ -35,13 +35,13 @@
   },
   "dependencies": {
     "browser-sync": "^2.26.7",
-    "command-exists": "^1.2.8",
+    "command-exists": "^1.2.9",
     "fs-extra": "^8.1.0",
     "glob": "^7.1.6",
     "mime": "^2.4.4",
-    "minimist": "^1.2.0",
-    "mustache": "^4.0.0",
-    "node-sass": "^4.13.1",
+    "minimist": "^1.2.5",
+    "mustache": "^4.0.1",
+    "node-sass": "^4.14.0",
     "progress": "^2.0.3",
     "update-notifier": "^4.1.0",
     "web-resource-inliner": "^4.3.4"
