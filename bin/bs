@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-require('../backslide');
+const BackslideCli = require('../backslide');
+const cli = new BackslideCli();
+cli.run(process.argv.slice(2));
