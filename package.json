@@ -27,11 +27,13 @@
     "init": "cp -R starter/template template",
     "start": "npm run init -s && node ./bin/bs serve example",
     "clean": "rm -rf .tmp dist pdf template",
-    "test": "eslint *.js",
+    "lint": "xo *.js",
+    "lint:fix": "xo --fix",
+    "test": "xo *.js",
     "export": "npm run init -s && node ./bin/bs export example",
     "pdf": "npm run init -s && node ./bin/bs pdf example",
     "deploy": "npm run clean && npm run export && gh-pages -d dist",
-    "postpublish": "git tag -a $npm_package_version -m '$npm_package_version' && git push --tags"
+    "postpublish": "git tag -a $npm_package_version -m \"$npm_package_version\" && git push --tags"
   },
   "dependencies": {
     "browser-sync": "^2.26.7",
@@ -47,8 +49,19 @@
     "web-resource-inliner": "^4.3.4"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "gh-pages": "^2.2.0"
+    "gh-pages": "^2.2.0",
+    "xo": "^0.30.0"
+  },
+  "xo": {
+    "space": true,
+    "prettier": true,
+    "envs": [
+      "node"
+    ],
+    "rules": {
+      "promise/prefer-await-to-then": "off",
+      "unicorn/no-process-exit": "off"
+    }
   },
   "engines": {
     "node": ">=7.6.0"
