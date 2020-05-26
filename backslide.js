@@ -7,7 +7,7 @@ const fs = require('fs-extra');
 const glob = require('glob');
 const Mustache = require('mustache');
 const sass = require('node-sass');
-const Inliner = require('web-resource-inliner');
+const inliner = require('web-resource-inliner');
 const Progress = require('progress');
 const browserSync = require('browser-sync').create('bs-server');
 const mime = require('mime');
@@ -498,11 +498,13 @@ class BackslideCli {
 
   _inlineCss(basedir, targetdir, css) {
     return new Promise((resolve, reject) => {
-      Inliner.css(
+      inliner.css(
         {
           fileContent: css.toString(),
           relativeTo: targetdir,
-          rebaseRelativeTo: path.relative(targetdir, basedir)
+          rebaseRelativeTo: path.relative(targetdir, basedir),
+          images: true,
+          svgs: true
         },
         (err, css) => (err ? reject(err) : resolve(Buffer.from(css)))
       );
@@ -512,9 +514,11 @@ class BackslideCli {
   _inline(basedir, html) {
     return new Promise((resolve, reject) => {
       process.chdir(basedir);
-      Inliner.html(
+      inliner.html(
         {
-          fileContent: html
+          fileContent: html,
+          images: true,
+          svgs: true
         },
         (err, html) => (err ? reject(err) : resolve(html))
       );
