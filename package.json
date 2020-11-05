@@ -43,7 +43,7 @@
     "mime": "^2.4.5",
     "minimist": "^1.2.5",
     "mustache": "^4.0.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^5.0.0",
     "progress": "^2.0.3",
     "update-notifier": "^4.1.0",
     "web-resource-inliner": "^4.3.4"
