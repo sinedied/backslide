@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/backslide.svg)](https://www.npmjs.com/package/backslide)
 ![Node version](https://img.shields.io/node/v/backslide.svg)
-[![Build status](https://img.shields.io/travis/sinedied/backslide/master.svg)](https://travis-ci.org/sinedied/backslide)
+[![Build Status](https://github.com/sinedied/backslide/workflows/build/badge.svg)](https://github.com/sinedied/backslide/actions)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
