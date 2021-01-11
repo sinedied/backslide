@@ -26,3 +26,5 @@ jobs:
         # Need owner/admin account to bypass branch protection
         GIT_COMMITTER_NAME: sinedied
         GIT_COMMITTER_EMAIL: noda@free.fr
+        GIT_AUTHOR_NAME: sinedied
+        GIT_AUTHOR_EMAIL: noda@free.fr
