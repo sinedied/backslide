@@ -21,6 +21,7 @@ jobs:
         npm ci
         # npm i -g decktape
         npm test
+        npm link
         mkdir gha
         cd gha
         bs init
