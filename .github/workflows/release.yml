@@ -1,0 +1,28 @@
+name: release
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [release]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 14
+    - run: npm ci
+      env:
+        CI: true
+    - run: npx semantic-release
+      if: success()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Need owner/admin account to bypass branch protection
+        GIT_COMMITTER_NAME: sinedied
+        GIT_COMMITTER_EMAIL: noda@free.fr
