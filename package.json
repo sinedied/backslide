@@ -1,6 +1,6 @@
 {
   "name": "backslide",
-  "version": "2.6.2",
+  "version": "3.0.0",
   "description": "CLI tool for making HTML presentations with Remark.js using Markdown",
   "repository": "sinedied/backslide",
   "keywords": [

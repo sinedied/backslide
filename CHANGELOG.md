@@ -1,3 +1,18 @@
+# [3.0.0](https://github.com/sinedied/backslide/compare/2.6.2...3.0.0) (2021-01-11)
+
+
+* fix!: update dependencies ([6322db4](https://github.com/sinedied/backslide/commit/6322db4409c6035e4896bb0c408b7891a10287a7))
+
+
+### Bug Fixes
+
+* update node-sass package ([#84](https://github.com/sinedied/backslide/issues/84)) ([6e97b1b](https://github.com/sinedied/backslide/commit/6e97b1ba8f41fcc8983ca0e2747722a4a98fb375))
+
+
+### BREAKING CHANGES
+
+* Require Node.js >= 10
+
 # 2.6.2
 - Fix CSS inlining with relative URLs (PR https://github.com/sinedied/backslide/pull/77)
 - Remove inlining size limit for images (fix #75)
