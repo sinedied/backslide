@@ -15,10 +15,10 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 14
-    - run: npm ci
+    - run: npm ci && npm link
       env:
         CI: true
-    - run: npx semantic-release
+    - run: npx semantic-release && npm run deploy
       if: success()
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

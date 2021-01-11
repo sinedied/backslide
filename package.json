@@ -33,7 +33,7 @@
     "export": "npm run init -s && node ./bin/bs export example",
     "pdf": "npm run init -s && node ./bin/bs pdf example",
     "deploy": "npm run clean && npm run export && gh-pages -d dist",
-    "postpublish": "git tag -a $npm_package_version -m \"$npm_package_version\" && git push --tags"
+    "release:check": "semantic-release --dry-run"
   },
   "dependencies": {
     "browser-sync": "^2.26.7",
@@ -63,6 +63,10 @@
       "unicorn/no-process-exit": "off",
       "max-params": "off"
     }
+  },
+  "release": {
+    "extends": "semantic-release-npm-github",
+    "branches": "main"
   },
   "engines": {
     "node": ">=10.0.0"
