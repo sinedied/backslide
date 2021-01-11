@@ -506,7 +506,7 @@ class BackslideCli {
           images: true,
           svgs: true
         },
-        (err, css) => (err ? reject(err) : resolve(Buffer.from(css)))
+        (error, css) => (error ? reject(error) : resolve(Buffer.from(css)))
       );
     });
   }
@@ -520,7 +520,7 @@ class BackslideCli {
           images: true,
           svgs: true
         },
-        (err, html) => (err ? reject(err) : resolve(html))
+        (error, html) => (error ? reject(error) : resolve(html))
       );
     });
   }
@@ -533,7 +533,7 @@ class BackslideCli {
           includePaths: [TemplateDir],
           outputStyle: 'compressed'
         },
-        (err, result) => (err ? reject(err) : resolve(result.css))
+        (error, result) => (error ? reject(error) : resolve(result.css))
       );
     });
   }
@@ -581,7 +581,7 @@ class BackslideCli {
     try {
       const stat = fs.statSync(path);
       return stat.isDirectory();
-    } catch (_) {
+    } catch {
       return false;
     }
   }
