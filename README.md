@@ -32,13 +32,13 @@ yarn add backslide
 
 ### Docker
 
-Backslide can be executed within a Docker container from the command-line using the `taobeier/backslide` Docker image available on [Docker Hub](https://hub.docker.com/r/taobeier/backslide/):
+Backslide can be executed within a Docker container from the command-line using the `registry.gitlab.com/mpolitze/backslide-docker:latest` Docker image available on [GitLab Container Registry](https://gitlab.com/mpolitze/backslide-docker):
 
 ```sh
-docker run --rm taobeier/backslide
+docker run --rm registry.gitlab.com/mpolitze/backslide-docker:latest
 ```
 
-See the [How-to-use-this-image](https://github.com/tao12345666333/backslide#how-to-use-this-image) for more examples.
+See the [How-to-use-this-image](https://gitlab.com/mpolitze/backslide-docker#how-to-use-this-image) for more examples.
 
 ## Usage
 
