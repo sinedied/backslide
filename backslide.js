@@ -1,19 +1,19 @@
-'use strict';
-
-const pkg = require('./package.json');
 const child = require('child_process');
 const path = require('path');
-const fs = require('fs-extra');
-const glob = require('glob');
-const Mustache = require('mustache');
-const sass = require('node-sass');
-const inliner = require('web-resource-inliner');
-const Progress = require('progress');
+const process = require('process');
+const { Buffer } = require('buffer');
 const browserSync = require('browser-sync').create('bs-server');
-const mime = require('mime');
-const updateNotifier = require('update-notifier');
-const commandExists = require('command-exists');
 const minimist = require('minimist');
+const commandExists = require('command-exists');
+const updateNotifier = require('update-notifier');
+const mime = require('mime');
+const Progress = require('progress');
+const inliner = require('web-resource-inliner');
+const sass = require('sass');
+const Mustache = require('mustache');
+const glob = require('glob');
+const fs = require('fs-extra');
+const pkg = require('./package.json');
 
 const TemporaryDir = '.tmp';
 const StarterDir = 'starter';
@@ -25,9 +25,12 @@ const AssetsFolders = ['assets', 'images', 'img'];
 const TitleRegExp = /^title:\s*(.*?)\s*$/gm;
 const NotesRegExp = /^\?\?\?$[\s\S]*?(^---?$)/gm;
 const FragmentsRegExp = /(^--[^-][\s\S])/gm;
-const MdRelativeURLRegExp = /(!?\[.*?]\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
-const HtmlRelativeURLRegExp = /(<(?:img|link|script|a)[^>]+(?:src|href)=["'])((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)(["'])/gm;
-const CssRelativeURLRegExp = /(url\("?)((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^")]+)("?\))/gm;
+const MdRelativeURLRegExp =
+  /(!?\[.*?]\()((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).+?)((?=\)))/gm;
+const HtmlRelativeURLRegExp =
+  /(<(?:img|link|script|a)[^>]+(?:src|href)=["'])((?!\/|data:|http:\/\/|https:\/\/|file:\/\/).[^">]+?)(["'])/gm;
+const CssRelativeURLRegExp =
+  /(url\("?)((?!\/|data:|http:\/\/|https:\/\/|file:\/\/)[^")]+)("?\))/gm;
 const MdImagesRegExp = /(!\[.*?]\()(file:\/{3}.+?)((?=\)))/gm;
 const HtmlImagesRegExp = /(<img[^>]+src=["'])(file:\/{3}.[^">]+?)(["'])/gm;
 const CssImagesRegExp = /(url\("?)((file:\/\/)[^")]+)("?\))/gm;
@@ -161,8 +164,8 @@ class BackslideCli {
         )
       )
       .then((exportedFiles) => {
-        exportedFiles.forEach((file) => {
-          progress.render({count: ++count});
+        for (const file of exportedFiles) {
+          progress.render({ count: ++count });
           const exportedFile = path.basename(file, path.extname(file)) + '.pdf';
           exportedFiles.push(exportedFile);
           child.execSync(
@@ -177,8 +180,8 @@ class BackslideCli {
               stdio: verbose ? [1, 2] : [2]
             }
           );
-          progress.tick({count});
-        });
+          progress.tick({ count });
+        }
       })
       .then(() => exportedFiles)
       .catch((error) =>
@@ -226,18 +229,21 @@ class BackslideCli {
       })
       .then(() => {
         // Find node_modules path
-        const sassPath = require.resolve('node-sass');
-        const nodeModulesPath = sassPath.slice(
-          0,
-          sassPath.lastIndexOf('node-sass')
-        );
-        const sassBin = `.bin/node-sass${isWindows ? '.cmd' : ''}`;
+        const sassPath = require.resolve('sass');
+        const nodeModulesPath = sassPath.slice(0, sassPath.lastIndexOf('sass'));
 
-        // Run node-sass in watch mode (no API >_<)
+        // Run sass in watch mode (no API >_<)
         child.spawn(
-          path.join(nodeModulesPath, sassBin),
-          ['-w', path.join(TemplateDir, SassTemplate), '-o', TemporaryDir],
-          {stdio: 'inherit'}
+          'node',
+          [
+            path.join(nodeModulesPath, 'sass.js'),
+            '-w',
+            `${path.join(TemplateDir, SassTemplate)}:${path.join(
+              TemporaryDir,
+              path.basename(SassTemplate, path.extname(SassTemplate)) + '.css'
+            )}`
+          ],
+          { stdio: 'inherit' }
         );
       })
       .then(() => nextFile())
@@ -277,7 +283,7 @@ class BackslideCli {
       promise.then(() => {
         if (count < files.length) {
           const file = files[count++];
-          progress.render({count});
+          progress.render({ count });
           return this._exportFile(
             output,
             file,
@@ -288,7 +294,7 @@ class BackslideCli {
             website
           )
             .then((exportedFile) => exportedFiles.push(exportedFile))
-            .then(() => progress.tick({count}))
+            .then(() => progress.tick({ count }))
             .then(nextFile);
         }
       });
@@ -453,12 +459,12 @@ class BackslideCli {
     try {
       const filterHtmlSass = (file) =>
         ![HtmlTemplate, SassTemplate].some((n) => file.includes(n));
-      fs.copySync(TemplateDir, dir, {filter: filterHtmlSass});
-      AssetsFolders.forEach((assetFolder) => {
+      fs.copySync(TemplateDir, dir, { filter: filterHtmlSass });
+      for (const assetFolder of AssetsFolders) {
         if (fs.existsSync(assetFolder)) {
           fs.copySync(assetFolder, path.join(dir, assetFolder));
         }
-      });
+      }
     } catch (error) {
       this._exit((error && error.message) || error);
     }
@@ -466,15 +472,16 @@ class BackslideCli {
 
   _makePathRelativeTo(contents, dir, regexps) {
     // Make paths relative to the specified directory
-    regexps.forEach((regexp) => {
+    for (const regexp of regexps) {
       contents = contents.replace(regexp, `$1file://${path.resolve(dir)}/$2$3`);
-    });
+    }
+
     return contents;
   }
 
   _inlineImages(contents, regexps) {
     const cache = {};
-    regexps.forEach((regexp) => {
+    for (const regexp of regexps) {
       let match = regexp.exec(contents);
       while (match) {
         const url = match[2].replace(/^file:\/\//g, '');
@@ -492,7 +499,8 @@ class BackslideCli {
         contents = contents.replace(new RegExp(match[2], 'g'), cache[url]);
         match = regexp.exec(contents);
       }
-    });
+    }
+
     return contents;
   }
 
@@ -626,9 +634,9 @@ class BackslideCli {
   }
 
   _runCommand() {
-    updateNotifier({pkg}).notify();
+    updateNotifier({ pkg }).notify();
 
-    const {_} = this._args;
+    const { _ } = this._args;
     switch (_[0]) {
       case 'i':
       case 'init':
