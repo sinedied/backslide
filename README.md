@@ -27,7 +27,7 @@ See an example presentation [here](https://sinedied.github.io/backslide)
 ```sh
 npm install -g backslide
 # or
-yarn add backslide
+yarn global add backslide
 ```
 
 ### Docker
