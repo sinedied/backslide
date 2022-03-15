@@ -1,3 +1,16 @@
+# [3.1.0](https://github.com/sinedied/backslide/compare/3.0.0...3.1.0) (2022-03-15)
+
+
+### Bug Fixes
+
+* deprecation warnings in sass template ([1c33982](https://github.com/sinedied/backslide/commit/1c339822bfbf528d64764e78f61ceea5789dea42))
+* never overwrite presentation files with init command (fixes [#35](https://github.com/sinedied/backslide/issues/35)) ([3a9d558](https://github.com/sinedied/backslide/commit/3a9d558ddfe3b77a8b4dc2ded05e698af1936807))
+
+
+### Features
+
+* migrate from node-sass to sass ([ab146fa](https://github.com/sinedied/backslide/commit/ab146fa25767ccbab1d166cb9c9eff97419b741a))
+
 # [3.0.0](https://github.com/sinedied/backslide/compare/2.6.2...3.0.0) (2021-01-11)
 
 
