@@ -1,9 +1,9 @@
 .vscode/
-.tmp/
-test/
-dist/
-template/
-node_modules/
 .idea/
+.tmp/
+node_modules/
+dist/
+/test/
+/template/
 npm-debug.log
 .DS_Store
