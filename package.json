@@ -43,8 +43,8 @@
     "mime": "^3.0.0",
     "minimist": "^1.2.5",
     "mustache": "^4.0.1",
-    "node-sass": "^7.0.1",
     "progress": "^2.0.3",
+    "sass": "^1.49.9",
     "update-notifier": "^5.0.1",
     "web-resource-inliner": "^5.0.0"
   },
@@ -54,6 +54,10 @@
     "semantic-release-npm-github": "^3.0.0",
     "xo": "^0.48.0"
   },
+  "prettier": {
+    "trailingComma": "none",
+    "bracketSpacing": true
+  },
   "xo": {
     "space": true,
     "prettier": true,
@@ -61,6 +65,7 @@
       "node"
     ],
     "rules": {
+      "unicorn/prefer-module": "off",
       "promise/prefer-await-to-then": "off",
       "unicorn/no-process-exit": "off",
       "max-params": "off"
