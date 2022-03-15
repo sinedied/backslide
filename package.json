@@ -40,19 +40,19 @@
     "command-exists": "^1.2.9",
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
-    "mime": "^2.4.5",
+    "mime": "^3.0.0",
     "minimist": "^1.2.5",
     "mustache": "^4.0.1",
-    "node-sass": "^5.0.0",
+    "node-sass": "^7.0.1",
     "progress": "^2.0.3",
     "update-notifier": "^5.0.1",
     "web-resource-inliner": "^5.0.0"
   },
   "devDependencies": {
     "gh-pages": "^3.1.0",
-    "semantic-release": "^17.3.1",
-    "semantic-release-npm-github": "^1.0.4",
-    "xo": "^0.37.1"
+    "semantic-release": "^19.0.2",
+    "semantic-release-npm-github": "^3.0.0",
+    "xo": "^0.48.0"
   },
   "xo": {
     "space": true,
