@@ -105,8 +105,12 @@ class BackslideCli {
    * @param {boolean} force Overwrite existing files.
    */
   init(fromTemplateDir, force) {
-    if (!force && fs.existsSync(path.join(TemplateDir))) {
+    if (!force && fs.existsSync(TemplateDir)) {
       this._exit(`Template directory already exists`);
+    }
+
+    if (!force && fs.existsSync('./presentation.md')) {
+      this._exit(`Presentation.md already exists`);
     }
 
     fromTemplateDir = fromTemplateDir
