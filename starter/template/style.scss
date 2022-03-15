@@ -1,3 +1,5 @@
+@use "sass:math";
+
 // Theme
 // ---------------------------------------------------------------------------
 
@@ -86,8 +88,8 @@ blockquote {
 .full {
   &, h1, h2 { color: $text-light; }
   &iframe {
-    height: calc(#{100%/$iframe-scale} - 1.2em);
-    width: 100%/$iframe-scale;
+    height: calc(math.div(100%, $iframe-scale) - 1.2em);
+    width: math.div(100%, $iframe-scale);
     transform: scale($iframe-scale);
     transform-origin: 0 0;
     border: 0;
@@ -188,7 +190,7 @@ blockquote {
 }
 
 @for $i from 1 through 12 {
-  .col-#{$i} {width: 100% / 12 * $i; }
+  .col-#{$i} { width: math.div(100%, 12) * $i; }
 }
 
 // Animations
