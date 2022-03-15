@@ -61,15 +61,14 @@ class: middle
 
 ## Installation
 
-- **Prerequisites**: [NodeJS](https://nodejs.org) v7.6+
+- **Prerequisites**: [NodeJS](https://nodejs.org) v10+
 
 ```sh
-# create project directory
+# Create project directory
 $ mkdir my-presentation && cd my-presentation
-# install globally with NPM
+# Install globally with NPM
 $ npm install -g backslide
-# or Yarn
-$ yarn global add backslide
+# Init project and show presentation
 $ bs init
 $ bs serve
 ```

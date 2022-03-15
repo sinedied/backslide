@@ -2,7 +2,6 @@
 .tmp/
 test/
 dist/
-example/
 template/
 node_modules/
 .idea/
